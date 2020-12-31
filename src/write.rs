@@ -44,23 +44,68 @@ impl Write for Vec<Image> {
 impl Write for Product {
     fn write(&self) -> std::string::String {
         format!(
-            "<product><id>{}</id><title>{}</title><description>{}</description><price>{}</price><price_old>{}</price_old><warranty/><weight/><manufacturer>{}</manufacturer>{}{}</product>\n",
+            "<product><id>{}</id><title>{}</title><description>{}</description><warranty/><weight/><manufacturer>{}</manufacturer>{}{}</product>\n",
             self.id,
             self.title.write(),
             self.description.write(),
-            self.price,
-            self.price_old,
             self.manufacturer.write(),
             self.images.write(),
             self.ty.write(),
         )
     }
 }
+impl Write for Attribute {
+    fn write(&self) -> std::string::String {
+        format!(
+            r#"<attribute title="{}">{}</attribute>"#,
+            self.name,
+            self.value.write()
+        )
+    }
+}
+impl Write for Vec<Attribute> {
+    fn write(&self) -> std::string::String {
+        format!(
+            "<attributes>{}</attributes>",
+            self.iter()
+                .map(|a| a.write())
+                .collect::<Vec<String>>()
+                .join("")
+        )
+    }
+}
+
+// <attributes>
+//   <attribute title="Med&#x17E;iaga"><![CDATA[Nerūdijantis plienas (18/10)]]></attribute>
+//   <attribute title="Antrin&#x117; med&#x17E;iaga"><![CDATA[Aliuminis]]></attribute>
+// </attributes>
 impl Write for SimpleProduct {
     fn write(&self) -> std::string::String {
         format!(
-            "<sku>{}</sku><quantity>{}</quantity>",
-            self.sku, self.quantity
+            "<sku>{}</sku><quantity>{}</quantity><price>{}</price><price_old>{}</price_old>{}",
+            self.sku,
+            self.quantity,
+            self.price,
+            self.price_old,
+            self.attributes.write()
+        )
+    }
+}
+
+impl Write for VariantProduct {
+    fn write(&self) -> std::string::String {
+        format!(
+            "<sku>{}</sku><quantity_total>{}</quantity_total><variants>{}</variants>",
+            match &self.sku {
+                Some(sku) => sku,
+                None => "",
+            },
+            self.quantity,
+            self.variants
+                .iter()
+                .map(|p| format!("<variant>{}</variant>", p.write()))
+                .collect::<Vec<String>>()
+                .join("")
         )
     }
 }
@@ -69,7 +114,7 @@ impl Write for Either<SimpleProduct, VariantProduct> {
     fn write(&self) -> std::string::String {
         match self {
             Left(simple) => simple.write(),
-            Right(_variant) => "".to_string(),
+            Right(variant) => variant.write(),
         }
     }
 }

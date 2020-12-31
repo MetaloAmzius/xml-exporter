@@ -1,10 +1,13 @@
+use crate::models::Attribute;
 use crate::models::Image;
 use crate::models::Product;
 use crate::models::SimpleProduct;
+use crate::models::VariantProduct;
 use crate::CData;
 use crate::Category;
 use crate::Root;
 use either::Left;
+use either::Right;
 use log::warn;
 use postgres::Client;
 use postgres::NoTls;
@@ -48,8 +51,99 @@ impl Database {
     fn load_products(&self) -> Vec<Product> {
         let mut products = Vec::new();
         products.extend(self.load_simple_products());
+        products.extend(self.load_variant_products());
 
         products
+    }
+
+    fn load_variant_products(&self) -> Vec<Product> {
+        let mut products = Vec::new();
+
+        let mut client = Client::connect(&self.connection_string, NoTls).unwrap();
+        for row in client
+            .query(
+                "
+select concat('https://metaloamzius.lt/produktas/', p.name_with_slug) as url,
+       p.id,
+       p.sku,
+       p.name as title,
+       p.description,
+       p.price,
+       p.price,
+       p.stock_quantity as quantity
+from products p
+left join products c on p.id = c.parent_id
+where c.id is not null and p.active = 't';
+",
+                &[],
+            )
+            .unwrap()
+        {
+            let id: i32 = row.get(1);
+            products.push(Product {
+                url: row.get(0),
+                id,
+                title: CData { data: row.get(3) },
+                description: CData { data: row.get(4) },
+                categories: self.get_product_categories(id),
+                manufacturer: self.get_product_manufacturer(id),
+                warranty: None,
+
+                ty: Right(VariantProduct {
+                    sku: row.get(2),
+                    variants: self.get_product_variants(id),
+                    quantity: self.get_variations_quantity(id),
+                }),
+                weight: None,
+                images: self.get_product_images(id),
+            })
+        }
+
+        products
+    }
+
+    fn get_product_variants(&self, id: i32) -> Vec<SimpleProduct> {
+        let mut client = Client::connect(&self.connection_string, NoTls).unwrap();
+        let mut result = Vec::new();
+        for row in client
+            .query(
+                "
+select cp.price, cp.sku, cp.id, cp.price from products cp
+where parent_id = $1;
+",
+                &[&id],
+            )
+            .unwrap()
+        {
+            let id: i32 = row.get(2);
+            result.push(SimpleProduct {
+                attributes: self.get_product_attributes(id),
+                price: row.get(0),
+                price_old: row.get(0),
+                quantity: self.get_product_quantity(id),
+                sku: row.get(1),
+            })
+        }
+        result
+    }
+
+    fn get_variations_quantity(&self, id: i32) -> i64 {
+        let mut client = Client::connect(&self.connection_string, NoTls).unwrap();
+        for row in client
+            .query(
+                "
+select sum(pr.count)
+from products cp
+inner join product_remainers pr on pr.product_id = cp.id
+where parent_id = $1;
+",
+                &[&id],
+            )
+            .unwrap()
+        {
+            return row.get(0);
+        }
+        panic!("No Count")
     }
 
     fn load_simple_products(&self) -> Vec<Product> {
@@ -86,6 +180,15 @@ where c.id is null and p.active = 't';
                 url: row.get(0),
                 id,
                 ty: Left(SimpleProduct {
+                    attributes: self.get_product_attributes(id),
+                    price: match row.get(6) {
+                        Some(result) => result,
+                        None => {
+                            warn!("Product with no price");
+                            "".to_string()
+                        }
+                    },
+                    price_old: row.get(7),
                     sku: row.get(2),
                     quantity: self.get_product_quantity(id),
                 }),
@@ -100,14 +203,6 @@ where c.id is null and p.active = 't';
                         }
                     },
                 },
-                price: match row.get(6) {
-                    Some(result) => result,
-                    None => {
-                        warn!("Product with no price");
-                        "".to_string()
-                    }
-                },
-                price_old: row.get(7),
                 warranty: row.get(9),
                 weight: row.get(10),
                 manufacturer: self.get_product_manufacturer(id),
@@ -115,6 +210,27 @@ where c.id is null and p.active = 't';
             })
         }
         products
+    }
+
+    fn get_product_attributes(&self, id: i32) -> Vec<Attribute> {
+        let mut client = Client::connect(&self.connection_string, NoTls).unwrap();
+        let mut attributes = Vec::new();
+        for row in client
+            .query(
+                "
+select distinct key, title
+from product_metadata pm
+where attribute_owner_id = $1;",
+                &[&id],
+            )
+            .unwrap()
+        {
+            attributes.push(Attribute {
+                name: row.get(0),
+                value: CData { data: row.get(1) },
+            })
+        }
+        attributes
     }
 
     fn get_product_categories(&self, id: i32) -> Vec<i32> {

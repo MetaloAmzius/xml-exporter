@@ -20,24 +20,23 @@ pub struct Image {
     pub data: String,
 }
 
-pub struct Variant {
-    _attributes: Vec<VariantAttribute>,
-    _price: String,
-    _quantity: i32,
-    _sku: String,
+pub struct Attribute {
+    pub name: String,
+    pub value: CData,
 }
-
-pub struct VariantAttribute {}
 
 pub struct VariantProduct {
     pub sku: Option<String>,
-    pub variants: Vec<Variant>,
-    pub quantity: Option<i32>,
+    pub variants: Vec<SimpleProduct>,
+    pub quantity: i64,
 }
 
 pub struct SimpleProduct {
+    pub attributes: Vec<Attribute>,
     pub sku: String,
     pub quantity: i64,
+    pub price: String,
+    pub price_old: String,
 }
 
 pub struct Product {
@@ -45,9 +44,6 @@ pub struct Product {
     pub id: i32,
     pub title: CData,
     pub description: CData,
-    pub price: String,
-    pub price_old: String,
-
     pub categories: Vec<i32>,
     pub manufacturer: Option<CData>,
     pub warranty: Option<String>,

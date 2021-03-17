@@ -23,11 +23,13 @@ struct Opts {
 }
 
 fn main() {
+
     SimpleLogger::new()
         .with_level(LevelFilter::Info)
         .with_module_level("xml_exporter", LevelFilter::Debug)
         .init()
         .unwrap();
+
     //load data
     let opts: Opts = Opts::parse();
 
@@ -40,6 +42,7 @@ fn main() {
         .arg("output.xml")
         .output()
         .unwrap();
+
     let mut formatted = File::create("formatted.xml").unwrap();
     formatted.write_all(&result.stdout).unwrap();
     std::fs::remove_file("output.xml").unwrap();

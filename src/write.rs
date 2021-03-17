@@ -1,4 +1,4 @@
-use crate::models::*;
+use crate::models::{Attribute, CData, Category, Image, Product, Root, SimpleProduct, VariantProduct};
 use either::Either;
 use either::Left;
 use either::Right;
@@ -14,6 +14,7 @@ impl Write for Option<CData> {
         }
     }
 }
+
 impl Write for Vec<Product> {
     fn write(&self) -> std::string::String {
         format!(
@@ -25,11 +26,13 @@ impl Write for Vec<Product> {
         )
     }
 }
+
 impl Write for Image {
     fn write(&self) -> std::string::String {
         format!("<image>{}</image>", self.data)
     }
 }
+
 impl Write for Vec<Image> {
     fn write(&self) -> std::string::String {
         format!(
@@ -41,6 +44,7 @@ impl Write for Vec<Image> {
         )
     }
 }
+
 impl Write for Product {
     fn write(&self) -> std::string::String {
         format!(
@@ -54,6 +58,7 @@ impl Write for Product {
         )
     }
 }
+
 impl Write for Attribute {
     fn write(&self) -> std::string::String {
         format!(
@@ -63,6 +68,7 @@ impl Write for Attribute {
         )
     }
 }
+
 impl Write for Vec<Attribute> {
     fn write(&self) -> std::string::String {
         format!(
@@ -75,10 +81,6 @@ impl Write for Vec<Attribute> {
     }
 }
 
-// <attributes>
-//   <attribute title="Med&#x17E;iaga"><![CDATA[Nerūdijantis plienas (18/10)]]></attribute>
-//   <attribute title="Antrin&#x117; med&#x17E;iaga"><![CDATA[Aliuminis]]></attribute>
-// </attributes>
 impl Write for SimpleProduct {
     fn write(&self) -> std::string::String {
         format!(
@@ -130,6 +132,7 @@ impl Write for Vec<Category> {
         )
     }
 }
+
 impl Write for Category {
     fn write(&self) -> std::string::String {
         format!(

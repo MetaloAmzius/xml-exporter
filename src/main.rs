@@ -1,10 +1,9 @@
+extern crate env_logger;
 use crate::database::Database;
 use crate::models::CData;
 use crate::models::Category;
 use crate::models::Root;
 use crate::write::Write;
-use log::LevelFilter;
-use simple_logger::SimpleLogger;
 use std::fs::File;
 use std::io::Write as OtherWrite;
 
@@ -14,7 +13,7 @@ mod write;
 use clap::Clap;
 
 #[derive(Clap)]
-#[clap(version = "0.1", author = "Ignas Lapėnas <ignas@lapenas.dev>")]
+#[clap(version = "0.2.0", author = "Ignas Lapėnas <ignas@lapenas.dev>")]
 struct Opts {
     /// Sets the postgresql connection string to the database
     /// Ex. "host=localhost user=root password=rootpw dbname=metaloamzius_web"
@@ -23,12 +22,7 @@ struct Opts {
 }
 
 fn main() {
-
-    SimpleLogger::new()
-        .with_level(LevelFilter::Info)
-        .with_module_level("xml_exporter", LevelFilter::Debug)
-        .init()
-        .unwrap();
+    env_logger::init();
 
     //load data
     let opts: Opts = Opts::parse();

@@ -37,7 +37,6 @@ struct Opts {
 }
 
 fn main() {
-    std::env::set_var("RUST_LOG", "info");
     env_logger::init();
     check_xmllint_version();
 
@@ -78,7 +77,7 @@ fn main() {
 
     let mut formatted = File::create(&opts.output_file).unwrap();
     formatted.write_all(&result.stdout).unwrap();
-    std::fs::remove_file(opts.output_file).unwrap();
+    std::fs::remove_file("temp.xml").unwrap();
 }
 
 fn check_xmllint_version() {

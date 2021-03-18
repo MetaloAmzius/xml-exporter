@@ -166,7 +166,7 @@ where parent_id = $1;
         for row in client
             .query(
                 "
-select sum(coalesce(pr.count, 0))
+select sum(pr.count)
 from products cp
 inner join product_remainers pr on pr.product_id = cp.id
 where parent_id = $1;
@@ -177,7 +177,10 @@ where parent_id = $1;
         {
             return match row.get(0){
                 Some(val) => val,
-                None => panic!("Failed to read remainders count, value was null")
+                None => {
+                    warn!("Failed to read remainders count, value was null: {}", id);
+                    0
+                }
             };
         }
         panic!("No Count")

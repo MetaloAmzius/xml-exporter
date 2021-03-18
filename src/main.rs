@@ -1,9 +1,11 @@
 extern crate env_logger;
+
 use crate::database::Database;
 use crate::models::CData;
 use crate::models::Category;
 use crate::models::Root;
 use crate::write::Write;
+use log::debug;
 use std::fs::File;
 use std::io::Write as OtherWrite;
 
@@ -29,6 +31,7 @@ struct Opts {
 
 fn main() {
     env_logger::init();
+    check_xmllint_version();
 
     //load data
     let opts: Opts = Opts::parse();
@@ -46,4 +49,14 @@ fn main() {
     let mut formatted = File::create("formatted.xml").unwrap();
     formatted.write_all(&result.stdout).unwrap();
     std::fs::remove_file(opts.output_file).unwrap();
+}
+
+fn check_xmllint_version() {
+    let output = std::process::Command::new("xmllint").arg("--version")
+                                                      .output()
+                                                      .expect("Failed to check xmllint version...");
+
+    //TODO: add version check
+
+    debug!("xmllint version: {:#?}", output);
 }

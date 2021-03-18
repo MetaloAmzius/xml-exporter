@@ -39,9 +39,19 @@ impl Database {
             .unwrap()
         {
             categories.push(Category {
-                id: row.get(0),
-                parent_id: row.get(1),
-                name: CData { data: row.get(2) },
+                id: match row.get(0)
+                {
+                    Some(val) => val,
+                    None => panic!("Failed to read Category ID, value was null")
+                },
+                parent_id: match row.get(1){
+                    Some(val) => val,
+                    None => panic!("Failed to read Category parent_id, value was null")
+                },
+                name: CData { data: match row.get(2) {
+                    Some(val) => val,
+                    None => panic!("Failed to read Category name, value was null")
+                }},
             })
         }
 
@@ -79,18 +89,33 @@ where c.id is not null and p.active = 't';
             )
             .unwrap()
         {
-            let id: i32 = row.get(1);
+            let id: i32 = match row.get(1){
+                Some(val) => val,
+                None => panic!("Failed to read Product Id, value was null")
+            };
             products.push(Product {
-                url: row.get(0),
+                url: match row.get(0){
+                    Some(val) => val,
+                    None => panic!("Failed to read Product Url, value was null")
+                },
                 id,
-                title: CData { data: row.get(3) },
-                description: CData { data: row.get(4) },
+                title: CData { data: match row.get(3) {
+                    Some(val) => val,
+                    None => panic!("Failed to read Product Title, value was null")
+                }},
+                description: CData { data: match row.get(4) {
+                    Some(val) => val,
+                    None => panic!("Failed to read Product Description, value was null")
+                }},
                 categories: self.get_product_categories(id),
                 manufacturer: self.get_product_manufacturer(id),
                 warranty: None,
 
                 ty: Right(VariantProduct {
-                    sku: row.get(2),
+                    sku: match row.get(2){
+                        Some(val) => val,
+                        None => panic!("Failed to read variant sku, value was null")
+                    },
                     variants: self.get_product_variants(id),
                     quantity: self.get_variations_quantity(id),
                 }),
@@ -115,13 +140,25 @@ where parent_id = $1;
             )
             .unwrap()
         {
-            let id: i32 = row.get(2);
+            let id: i32 = match row.get(2){
+                Some(val) => val,
+                None => panic!("Failed to read product id, value was null")
+            };
             result.push(SimpleProduct {
                 attributes: self.get_product_attributes(id),
-                price: row.get(0),
-                price_old: row.get(0),
+                price: match row.get(0){
+                    Some(val) => val,
+                    None => panic!("Failed to read product price, value was null")
+                },
+                price_old: match row.get(0){
+                    Some(val) => val,
+                    None => panic!("Failed to read product price, value was null")
+                },
                 quantity: self.get_product_quantity(id),
-                sku: row.get(1),
+                sku: match row.get(1){
+                    Some(val) => val,
+                    None => panic!("Failed to read product sku, value was null")
+                },
             })
         }
         result
@@ -141,7 +178,10 @@ where parent_id = $1;
             )
             .unwrap()
         {
-            return row.get(0);
+            return match row.get(0){
+                Some(val) => val,
+                None => panic!("Failed to read remainders count, value was null")
+            };
         }
         panic!("No Count")
     }
@@ -175,9 +215,15 @@ where c.id is null and p.active = 't';
             )
             .unwrap()
         {
-            let id = row.get(1);
+            let id = match row.get(1){
+                Some(val) => val,
+                None => panic!("Failed to read product_id, value was null")
+            };
             products.push(Product {
-                url: row.get(0),
+                url: match row.get(0){
+                    Some(val) => val,
+                    None => panic!("Failed to read product url, value was null")
+                },
                 id,
                 ty: Left(SimpleProduct {
                     attributes: self.get_product_attributes(id),
@@ -188,12 +234,21 @@ where c.id is null and p.active = 't';
                             "".to_string()
                         }
                     },
-                    price_old: row.get(7),
-                    sku: row.get(2),
+                    price_old: match row.get(7){
+                        Some(val) => val,
+                        None => panic!("Failed to read product price, value was null")
+                    },
+                    sku: match row.get(2){
+                        Some(val) => val,
+                        None => panic!("Failed to read product price, value was null")
+                    },
                     quantity: self.get_product_quantity(id),
                 }),
                 categories: self.get_product_categories(id),
-                title: CData { data: row.get(4) },
+                title: CData { data: match row.get(4) {
+                    Some(val) => val,
+                    None => panic!("Failed to read product title, value was null")
+                }},
                 description: CData {
                     data: match row.get(5) {
                         Some(result) => result,
@@ -203,8 +258,14 @@ where c.id is null and p.active = 't';
                         }
                     },
                 },
-                warranty: row.get(9),
-                weight: row.get(10),
+                warranty: match row.get(9){
+                    Some(val) => val,
+                    None => panic!("Failed to read product warranty, value was null")
+                },
+                weight: match row.get(10){
+                    Some(val) => val,
+                    None => panic!("Failed to read product weight, value was null")
+                },
                 manufacturer: self.get_product_manufacturer(id),
                 images: self.get_product_images(id),
             })
@@ -226,8 +287,14 @@ where attribute_owner_id = $1;",
             .unwrap()
         {
             attributes.push(Attribute {
-                name: row.get(0),
-                value: CData { data: row.get(1) },
+                name: match row.get(0){
+                    Some(val) => val,
+                    None => panic!("Failed to read attributes key, value was null")
+                },
+                value: CData { data: match row.get(1){
+                    Some(val) => val,
+                    None => panic!("Failed to read attributes value, value was null")
+                }},
             })
         }
         attributes
@@ -248,7 +315,10 @@ where product_id = $1;
             )
             .unwrap()
         {
-            categories.push(row.get(0));
+            categories.push(match row.get(0){
+                Some(val) => val,
+                None => panic!("Failed to read categories id, value was null")
+            });
         }
 
         categories
@@ -268,7 +338,10 @@ where p.id = $1 and c.category_id = 851;
             )
             .unwrap()
         {
-            return Some(CData { data: row.get(1) });
+            return Some(CData { data: match row.get(1) {
+                Some(val) => val,
+                None => panic!("Failed to read category name, value was null")
+            }});
         }
 
         None

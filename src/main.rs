@@ -44,7 +44,7 @@ fn main() {
     //load data
     let opts: Opts = Opts::parse();
 
-    let mut file = File::create(&opts.output_file).unwrap();
+    let mut file = File::create("temp.xml").unwrap();
     let mut root = Database::new(&opts.connection_string).load();
 
     if opts.style == 2 {
@@ -72,11 +72,11 @@ fn main() {
 
     let result = std::process::Command::new("xmllint")
         .arg("-format")
-        .arg(&opts.output_file)
+        .arg("temp.xml")
         .output()
         .unwrap();
 
-    let mut formatted = File::create("formatted.xml").unwrap();
+    let mut formatted = File::create(&opts.output_file).unwrap();
     formatted.write_all(&result.stdout).unwrap();
     std::fs::remove_file(opts.output_file).unwrap();
 }

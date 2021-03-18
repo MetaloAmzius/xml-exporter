@@ -5,6 +5,7 @@ pub struct Root {
     pub products: Vec<Product>,
 }
 
+#[derive(Clone, Debug)]
 pub struct CData {
     pub data: String,
 }
@@ -15,22 +16,24 @@ pub struct Category {
     pub name: CData,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Image {
     pub data: String,
 }
 
+#[derive(Clone, Debug)]
 pub struct Attribute {
     pub name: String,
     pub value: CData,
 }
 
+#[derive(Clone, Debug)]
 pub struct VariantProduct {
     pub sku: Option<String>,
     pub variants: Vec<SimpleProduct>,
     pub quantity: i64,
 }
-
+#[derive(Clone, Debug)]
 pub struct SimpleProduct {
     pub attributes: Vec<Attribute>,
     pub sku: String,
@@ -39,6 +42,7 @@ pub struct SimpleProduct {
     pub price_old: String,
 }
 
+#[derive(Clone, Debug)]
 pub struct Product {
     pub url: String,
     pub id: i32,

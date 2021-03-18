@@ -19,6 +19,12 @@ struct Opts {
     /// Ex. "host=localhost user=root password=rootpw dbname=metaloamzius_web"
     #[clap(short, long)]
     connection_string: String,
+
+    /// Sets the export output file (Optional)
+    /// Default value: output.xml
+    /// Ex. "output.xml"
+    #[clap(short, long, default_value="output.xml")]
+    output_file: String,
 }
 
 fn main() {
@@ -27,17 +33,17 @@ fn main() {
     //load data
     let opts: Opts = Opts::parse();
 
-    let mut file = File::create("output.xml").unwrap();
+    let mut file = File::create(&opts.output_file).unwrap();
     file.write_all(Write::write(&Database::new(&opts.connection_string).load()).as_bytes())
         .unwrap();
 
     let result = std::process::Command::new("xmllint")
         .arg("-format")
-        .arg("output.xml")
+        .arg(&opts.output_file)
         .output()
         .unwrap();
 
     let mut formatted = File::create("formatted.xml").unwrap();
     formatted.write_all(&result.stdout).unwrap();
-    std::fs::remove_file("output.xml").unwrap();
+    std::fs::remove_file(opts.output_file).unwrap();
 }

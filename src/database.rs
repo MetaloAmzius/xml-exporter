@@ -112,10 +112,7 @@ where c.id is not null and p.active = 't';
                 warranty: None,
 
                 ty: Right(VariantProduct {
-                    sku: match row.get(2){
-                        Some(val) => val,
-                        None => panic!("Failed to read variant sku, value was null")
-                    },
+                    sku: row.get(2),
                     variants: self.get_product_variants(id),
                     quantity: self.get_variations_quantity(id),
                 }),
@@ -169,7 +166,7 @@ where parent_id = $1;
         for row in client
             .query(
                 "
-select sum(pr.count)
+select sum(coalesce(pr.count, 0))
 from products cp
 inner join product_remainers pr on pr.product_id = cp.id
 where parent_id = $1;
@@ -258,14 +255,8 @@ where c.id is null and p.active = 't';
                         }
                     },
                 },
-                warranty: match row.get(9){
-                    Some(val) => val,
-                    None => panic!("Failed to read product warranty, value was null")
-                },
-                weight: match row.get(10){
-                    Some(val) => val,
-                    None => panic!("Failed to read product weight, value was null")
-                },
+                warranty: row.get(9),
+                weight: row.get(10),
                 manufacturer: self.get_product_manufacturer(id),
                 images: self.get_product_images(id),
             })

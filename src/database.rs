@@ -1,5 +1,5 @@
 pub trait Loadable {
-    fn load_all(db: Database) -> Vec<Self>
+    fn load_all(db: &Database) -> Vec<Self>
         where Self: Sized;
 }
 

@@ -29,7 +29,7 @@ struct Opts {
 
     /// Sets the exported output file style
     /// Ex. 1 - Merge variants, 2 - Non merged variants
-    #[clap(short, long, default_value="2")]
+    #[clap(short, long, default_value="1")]
     style: i32,
 }
 
@@ -44,7 +44,7 @@ fn main() {
     let mut db = Database::new(&opts.connection_string);
 
     let mut root = match opts.style {
-        1 => shopzone::database::load(db),
+        1 => shopzone::database::load(&db),
         2 => todo!(),
         _ => panic!("incorrect style argument")
     };

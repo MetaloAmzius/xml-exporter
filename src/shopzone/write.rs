@@ -1,4 +1,4 @@
-use crate::models::{Attribute, CData, Category, Image, Product, Root, SimpleProduct, VariantProduct};
+use super::models::{Attribute, CData, Category, Image, Product, Root, SimpleProduct, VariantProduct};
 use either::Either;
 use either::Left;
 use either::Right;

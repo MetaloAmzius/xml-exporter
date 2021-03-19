@@ -1,19 +1,13 @@
 extern crate env_logger;
 
-use crate::database::Database;
-use crate::models::CData;
-use crate::models::Category;
-use crate::models::Root;
-use crate::models::Product;
-use crate::write::Write;
-use either::Either;
+use crate::shopzone::write::Write;
+use crate::shopzone::database::Database;
 use log::debug;
 use std::fs::File;
 use std::io::Write as OtherWrite;
 
-mod database;
-mod models;
-mod write;
+mod shopzone;
+mod varle;
 use clap::Clap;
 
 #[derive(Clap)]
@@ -46,25 +40,25 @@ fn main() {
     let mut file = File::create("temp.xml").unwrap();
     let mut root = Database::new(&opts.connection_string).load();
 
-    if opts.style == 2 {
-        root.products = root.products.into_iter().map(|p| match &p.ty {
-            either::Left(_) => vec![p],
-            either::Right(variant) => {
-                variant.variants.iter().map(|v| Product {
-                    url: p.url.clone(),
-                    id: p.id,
-                    title: p.title.clone(),
-                    description: p.description.clone(),
-                    categories: p.categories.clone(),
-                    manufacturer: p.manufacturer.clone(),
-                    warranty: p.warranty.clone(),
-                    ty: Either::Left(v.clone()),
-                    weight: p.weight.clone(),
-                    images: p.images.clone(),
-                }).collect::<Vec<Product>>()
-            }
-        }).collect::<Vec<Vec<Product>>>().concat();
-    }
+    // if opts.style == 2 {
+    //     root.products = root.products.into_iter().map(|p| match &p.ty {
+    //         either::Left(_) => vec![p],
+    //         either::Right(variant) => {
+    //             variant.variants.iter().map(|v| Product {
+    //                 url: p.url.clone(),
+    //                 id: p.id,
+    //                 title: p.title.clone(),
+    //                 description: p.description.clone(),
+    //                 categories: p.categories.clone(),
+    //                 manufacturer: p.manufacturer.clone(),
+    //                 warranty: p.warranty.clone(),
+    //                 ty: Either::Left(v.clone()),
+    //                 weight: p.weight.clone(),
+    //                 images: p.images.clone(),
+    //             }).collect::<Vec<Product>>()
+    //         }
+    //     }).collect::<Vec<Vec<Product>>>().concat();
+    // }
 
     file.write_all(Write::write(&root).as_bytes())
         .unwrap();

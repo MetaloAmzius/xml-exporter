@@ -1,11 +1,12 @@
-use crate::models::Attribute;
-use crate::models::Image;
-use crate::models::Product;
-use crate::models::SimpleProduct;
-use crate::models::VariantProduct;
-use crate::CData;
-use crate::Category;
-use crate::Root;
+use super::models::Attribute;
+
+use super::models::Image;
+use super::models::Product;
+use super::models::SimpleProduct;
+use super::models::VariantProduct;
+use super::models::CData;
+use super::models::Category;
+use super::models::Root;
 use either::Left;
 use either::Right;
 use log::warn;

@@ -1,12 +1,15 @@
 extern crate env_logger;
 
-use crate::shopzone::write::Write;
-use crate::shopzone::database::Database;
+use crate::write::Write;
+use crate::database::Database;
 use log::debug;
 use std::fs::File;
 use std::io::Write as OtherWrite;
 
 mod shopzone;
+mod models;
+mod database;
+mod write;
 mod varle;
 use clap::Clap;
 
@@ -38,27 +41,13 @@ fn main() {
     let opts: Opts = Opts::parse();
 
     let mut file = File::create("temp.xml").unwrap();
-    let mut root = Database::new(&opts.connection_string).load();
+    let mut db = Database::new(&opts.connection_string);
 
-    // if opts.style == 2 {
-    //     root.products = root.products.into_iter().map(|p| match &p.ty {
-    //         either::Left(_) => vec![p],
-    //         either::Right(variant) => {
-    //             variant.variants.iter().map(|v| Product {
-    //                 url: p.url.clone(),
-    //                 id: p.id,
-    //                 title: p.title.clone(),
-    //                 description: p.description.clone(),
-    //                 categories: p.categories.clone(),
-    //                 manufacturer: p.manufacturer.clone(),
-    //                 warranty: p.warranty.clone(),
-    //                 ty: Either::Left(v.clone()),
-    //                 weight: p.weight.clone(),
-    //                 images: p.images.clone(),
-    //             }).collect::<Vec<Product>>()
-    //         }
-    //     }).collect::<Vec<Vec<Product>>>().concat();
-    // }
+    let mut root = match opts.style {
+        1 => shopzone::database::load(db),
+        2 => todo!(),
+        _ => panic!("incorrect style argument")
+    };
 
     file.write_all(Write::write(&root).as_bytes())
         .unwrap();

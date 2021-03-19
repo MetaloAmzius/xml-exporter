@@ -1,11 +1,10 @@
-use super::models::{Attribute, CData, Category, Image, Product, Root, SimpleProduct, VariantProduct};
+use super::models::{Attribute, Category, Image, Product, Root, SimpleProduct, VariantProduct};
+use crate::models::CData;
 use either::Either;
 use either::Left;
 use either::Right;
+use crate::write::Write;
 
-pub trait Write {
-    fn write(&self) -> String;
-}
 impl Write for Option<CData> {
     fn write(&self) -> std::string::String {
         match self {

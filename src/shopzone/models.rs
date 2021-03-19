@@ -1,13 +1,9 @@
+use crate::models::CData;
 use either::Either;
 
 pub struct Root {
     pub categories: Vec<Category>,
     pub products: Vec<Product>,
-}
-
-#[derive(Clone, Debug)]
-pub struct CData {
-    pub data: String,
 }
 
 pub struct Category {

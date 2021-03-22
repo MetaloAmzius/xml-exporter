@@ -45,7 +45,7 @@ fn main() {
 
     let mut root = match opts.style {
         1 => shopzone::database::load(&db),
-        2 => todo!(),
+        2 => varle::database::load(&db),
         _ => panic!("incorrect style argument")
     };
 

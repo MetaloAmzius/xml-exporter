@@ -11,7 +11,7 @@ pub struct Root {
 #[derive(Clone, Debug)]
 pub struct Product {
     pub url: String,
-    pub id: i32,
+    pub id: String,
     pub title: CData,
     pub description: CData,
     pub categories: Vec<i32>,

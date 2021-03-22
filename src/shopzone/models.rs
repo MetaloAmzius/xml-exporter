@@ -1,15 +1,10 @@
 use crate::models::CData;
 use either::Either;
+use crate::models::Category;
 
 pub struct Root {
     pub categories: Vec<Category>,
     pub products: Vec<Product>,
-}
-
-pub struct Category {
-    pub id: i32,
-    pub parent_id: i32,
-    pub name: CData,
 }
 
 #[derive(Clone, Debug)]

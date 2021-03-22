@@ -1,5 +1,5 @@
-use either::Either;
-use crate::Models::Category;
+use crate::models::CData;
+use crate::models::Category;
 
 pub struct Root {
     pub categories: Vec<Category>,

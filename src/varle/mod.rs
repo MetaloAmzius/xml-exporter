@@ -1,7 +1,7 @@
 use crate::Database;
-use super::models::Root;
-use super::models::Category;
-use super::models::Product;
+use crate::models::Category;
+use models::Product;
+use models::Root;
 
 mod database;
 mod models;

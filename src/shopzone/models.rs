@@ -1,21 +1,12 @@
+use crate::models::Attribute;
 use crate::models::CData;
-use either::Either;
 use crate::models::Category;
+use crate::models::Image;
+use either::Either;
 
 pub struct Root {
     pub categories: Vec<Category>,
     pub products: Vec<Product>,
-}
-
-#[derive(Clone, Debug)]
-pub struct Image {
-    pub data: String,
-}
-
-#[derive(Clone, Debug)]
-pub struct Attribute {
-    pub name: String,
-    pub value: CData,
 }
 
 #[derive(Clone, Debug)]

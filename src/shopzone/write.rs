@@ -1,5 +1,5 @@
-use super::models::{Attribute, Image, Product, Root, SimpleProduct, VariantProduct};
-use crate::models::CData;
+use super::models::{Product, Root, SimpleProduct, VariantProduct};
+use crate::models::*;
 use either::Either;
 use either::Left;
 use either::Right;
@@ -26,23 +26,6 @@ impl Write for Vec<Product> {
     }
 }
 
-impl Write for Image {
-    fn write(&self) -> std::string::String {
-        format!("<image>{}</image>", self.data)
-    }
-}
-
-impl Write for Vec<Image> {
-    fn write(&self) -> std::string::String {
-        format!(
-            "<images>{}</images>",
-            self.iter()
-                .map(|i| i.write())
-                .collect::<Vec<String>>()
-                .join("")
-        )
-    }
-}
 
 impl Write for Product {
     fn write(&self) -> std::string::String {

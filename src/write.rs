@@ -1,4 +1,4 @@
-use crate::models::Category;
+use crate::models::*;
 
 pub trait Write {
     fn write(&self) -> String;
@@ -24,5 +24,23 @@ impl Write for Category {
             self.parent_id,
             self.name.write()
         )
+    }
+}
+
+impl Write for Vec<Image> {
+    fn write(&self) -> std::string::String {
+        format!(
+            "<images>{}</images>",
+            self.iter()
+                .map(|i| i.write())
+                .collect::<Vec<String>>()
+                .join("")
+        )
+    }
+}
+
+impl Write for Image {
+    fn write(&self) -> std::string::String {
+        format!("<image>{}</image>", self.data)
     }
 }

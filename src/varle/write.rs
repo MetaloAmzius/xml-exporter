@@ -26,8 +26,7 @@ impl Write for Vec<Product> {
 impl Write for Product {
     fn write(&self) -> std::string::String {
         format!(
-            "<product>
-<id>{}</id>
+            "<product><id>{}</id>
 <title>{}</title>
 <description>{}</description>
 <warranty/>
@@ -37,7 +36,7 @@ impl Write for Product {
 <sku>{}</sku>
 <quantity>{}</quantity>
 <price>{}</price>
-<price_old>{}</price_old>{}
+<price_old>{}</price_old>
 {}
 </product>\n",
             self.id,
@@ -45,7 +44,6 @@ impl Write for Product {
             self.description.write(),
             self.manufacturer.write(),
             self.images.write(),
-            self.ty.write(),
             self.sku,
             self.quantity,
             self.price,

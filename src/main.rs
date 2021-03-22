@@ -41,7 +41,7 @@ fn main() {
     let opts: Opts = Opts::parse();
 
     let mut file = File::create("temp.xml").unwrap();
-    let mut db = Database::new(&opts.connection_string);
+    let db = Database::new(&opts.connection_string);
 
     match opts.style {
         1 => file.write_all(Write::write(&shopzone::database::load(&db)).as_bytes())

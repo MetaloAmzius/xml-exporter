@@ -14,7 +14,7 @@ use super::models::Root;
 
 pub fn load(db: &Database) -> Root {
     Root {
-    categories: Category::load_all(db),
-    products: vec![],
+        categories: Category::load_all(db),
+        products: Product::load_all(db),
     }
 }

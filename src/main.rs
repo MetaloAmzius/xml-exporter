@@ -43,14 +43,13 @@ fn main() {
     let mut file = File::create("temp.xml").unwrap();
     let mut db = Database::new(&opts.connection_string);
 
-    let mut root = match opts.style {
-        1 => shopzone::database::load(&db),
-        2 => varle::database::load(&db),
+    match opts.style {
+        1 => file.write_all(Write::write(&shopzone::database::load(&db)).as_bytes())
+                 .expect("Failed to generate shopzone xml"),
+        2 => file.write_all(Write::write(&varle::database::load(&db)).as_bytes())
+            .expect("Failed to generate varle xml"),
         _ => panic!("incorrect style argument")
     };
-
-    file.write_all(Write::write(&root).as_bytes())
-        .unwrap();
 
     let result = std::process::Command::new("xmllint")
         .arg("-format")

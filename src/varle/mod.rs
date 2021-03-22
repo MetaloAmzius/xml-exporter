@@ -1,14 +1,14 @@
-use crate::Database;
-use crate::models::Category;
-use models::Product;
-use models::Root;
+pub mod database;
+pub mod models;
+pub mod write;
 
-mod database;
-mod models;
+use crate::database::*;
+use crate::models::Category;
+use models::Root;
 
 pub fn load(db: &Database) -> Root {
     Root {
         categories: Category::load_all(db),
-        products: Product::load_all(db),
+        products: vec![],
     }
 }

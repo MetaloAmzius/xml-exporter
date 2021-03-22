@@ -1,4 +1,4 @@
-use super::models::{Attribute, Category, Image, Product, Root, SimpleProduct, VariantProduct};
+use super::models::{Attribute, Image, Product, Root, SimpleProduct, VariantProduct};
 use crate::models::CData;
 use either::Either;
 use either::Left;
@@ -117,29 +117,6 @@ impl Write for Either<SimpleProduct, VariantProduct> {
             Left(simple) => simple.write(),
             Right(variant) => variant.write(),
         }
-    }
-}
-
-impl Write for Vec<Category> {
-    fn write(&self) -> std::string::String {
-        format!(
-            "<categories>{}</categories>",
-            self.iter()
-                .map(|cat| cat.write())
-                .collect::<Vec<String>>()
-                .join("")
-        )
-    }
-}
-
-impl Write for Category {
-    fn write(&self) -> std::string::String {
-        format!(
-            "<category><id>{}</id><parent>{}</parent><name>{}</name>\n</category>",
-            self.id,
-            self.parent_id,
-            self.name.write()
-        )
     }
 }
 

@@ -69,7 +69,7 @@ where c.id is null
                     None => panic!("Failed to read product title, value was null")
                 }},
                 description: CData {
-                    data: match row.get(5) {
+                    data: match row.get(6) {
                         Some(result) => result,
                         None => {
                             warn!("Product with no description");

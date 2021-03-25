@@ -27,6 +27,7 @@ impl Write for Product {
     fn write(&self) -> std::string::String {
         format!(
             "<product><id>{}</id>
+<categories>{}</categories>
 <title>{}</title>
 <description>{}</description>
 <warranty/>
@@ -40,6 +41,11 @@ impl Write for Product {
 {}
 </product>\n",
             self.id,
+            self.categories
+                .iter()
+                .map(|c| format!("<category>{}</category>", c))
+                .collect::<Vec<String>>()
+                .join(""),
             self.title.write(),
             self.description.write(),
             self.manufacturer.write(),

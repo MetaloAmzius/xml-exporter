@@ -38,6 +38,7 @@ impl Write for Product {
 <quantity>{}</quantity>
 <price>{}</price>
 <price_old>{}</price_old>
+<prime_costs>{}</prime_costs>
 {}
 </product>\n",
             self.id,
@@ -54,6 +55,7 @@ impl Write for Product {
             self.quantity,
             self.price,
             self.price_old,
+            self.prime_costs,
             self.attributes.write()
         )
     }

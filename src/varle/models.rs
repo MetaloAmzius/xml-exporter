@@ -22,6 +22,7 @@ pub struct Product {
     pub quantity: i64,
     pub price: String,
     pub price_old: String,
+    pub prime_costs: String,
     pub images: Vec<Image>,
     pub weight: Option<String>,
 }

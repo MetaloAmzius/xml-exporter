@@ -28,7 +28,8 @@ impl Loadable for Product {
            c.price as price_old,
            c.sku,
            c.name as title,
-           c.description
+           c.description,
+           cast(cast(c.price as decimal) / 1.21 / 1.3 as text) as prime_cost
       from products p
 inner join products c on p.id = c.parent_id
      where c.active = 't'
@@ -40,7 +41,8 @@ select p.id,
        p.price as price_old,
        p.sku,
        p.name as title,
-       p.description
+       p.description,
+       cast(cast(p.price as decimal) / 1.21 / 1.3 as text) as prime_cost
 from products p
 left join products c on p.id = c.parent_id
 where c.id is null
@@ -97,6 +99,13 @@ where c.id is null
                     Some(result) => result,
                     None => {
                         warn!("Product ({}) with no old_price", id);
+                        "".to_string()
+                    },
+                },
+                prime_costs: match row.get(7) {
+                    Some(result) => result,
+                    None => {
+                        warn!("Product ({}) with no prime_costs", id);
                         "".to_string()
                     },
                 },

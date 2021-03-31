@@ -1,4 +1,4 @@
-use super::models::{Product, Root, SimpleProduct, VariantProduct};
+use super::models::{Attribute, Product, Root, SimpleProduct, VariantProduct};
 use crate::models::*;
 use either::Either;
 use either::Left;

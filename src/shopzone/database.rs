@@ -1,6 +1,5 @@
 use crate::database::Database;
 use crate::database::Loadable;
-use crate::database::get_product_attributes;
 use crate::database::get_product_categories;
 use crate::database::get_product_images;
 use crate::database::get_product_manufacturer;
@@ -12,6 +11,7 @@ use either::Right;
 use log::warn;
 use postgres::Client;
 use postgres::NoTls;
+use super::models::Attribute;
 use super::models::Product;
 use super::models::Root;
 use super::models::SimpleProduct;
@@ -235,4 +235,31 @@ where parent_id = $1;
         })
     }
     result
+}
+
+pub fn get_product_attributes(db: &Database, id: i32) -> Vec<Attribute> {
+    let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
+    let mut attributes = Vec::new();
+    for row in client
+        .query(
+            "
+select distinct key, title
+from product_metadata pm
+where attribute_owner_id = $1;",
+            &[&id],
+        )
+        .unwrap()
+    {
+        attributes.push(Attribute {
+            name: match row.get(0){
+                Some(val) => val,
+                None => panic!("Failed to read attributes key, value was null")
+            },
+            value: CData { data: match row.get(1){
+                Some(val) => val,
+                None => panic!("Failed to read attributes value, value was null")
+            }},
+        })
+    }
+    attributes
 }

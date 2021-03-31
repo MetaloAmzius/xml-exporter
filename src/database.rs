@@ -1,7 +1,6 @@
 use log::warn;
 use postgres::Client;
 use postgres::NoTls;
-use super::models::Attribute;
 use super::models::CData;
 use super::models::Category;
 use super::models::Image;
@@ -52,32 +51,6 @@ impl Loadable for Category {
     }
 }
 
-pub fn get_product_attributes(db: &Database, id: i32) -> Vec<Attribute> {
-    let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
-    let mut attributes = Vec::new();
-    for row in client
-        .query(
-            "
-select distinct key, title
-from product_metadata pm
-where attribute_owner_id = $1;",
-            &[&id],
-        )
-        .unwrap()
-    {
-        attributes.push(Attribute {
-            name: match row.get(0){
-                Some(val) => val,
-                None => panic!("Failed to read attributes key, value was null")
-            },
-            value: CData { data: match row.get(1){
-                Some(val) => val,
-                None => panic!("Failed to read attributes value, value was null")
-            }},
-        })
-    }
-    attributes
-}
 
 pub fn get_product_categories(db: &Database, id: i32) -> Vec<i32> {
     let mut client = Client::connect(&db.connection_string, NoTls).unwrap();

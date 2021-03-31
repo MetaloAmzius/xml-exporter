@@ -1,7 +1,12 @@
-use crate::models::Attribute;
 use crate::models::CData;
 use crate::models::Category;
 use crate::models::Image;
+
+#[derive(Clone, Debug)]
+pub struct Attribute {
+    pub name: String,
+    pub value: String,
+}
 
 pub struct Root {
     pub categories: Vec<Category>,

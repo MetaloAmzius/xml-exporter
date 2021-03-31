@@ -14,7 +14,7 @@ mod varle;
 use clap::Clap;
 
 #[derive(Clap)]
-#[clap(version = "0.2.0", author = "Ignas Lapėnas <ignas@lapenas.dev>")]
+#[clap(version = "0.2.1", author = "Ignas Lapėnas <ignas@lapenas.dev>")]
 struct Opts {
     /// Sets the postgresql connection string to the database
     /// Ex. "host=localhost user=root password=rootpw dbname=metaloamzius_web"
@@ -51,11 +51,22 @@ fn main() {
         _ => panic!("incorrect style argument")
     };
 
-    let result = std::process::Command::new("xmllint")
-        .arg("-format")
-        .arg("temp.xml")
-        .output()
-        .unwrap();
+
+    let result =
+        match opts.style {
+            1 => std::process::Command::new("xmllint")
+                .arg("-format")
+                .arg("temp.xml")
+                .output()
+                .unwrap(),
+            2 => std::process::Command::new("xmllint")
+                .arg("-format")
+                .arg("-c14n")
+                .arg("temp.xml")
+                .output()
+                .unwrap(),
+            _ => panic!("incorrect style argument")
+        };
 
     let mut formatted = File::create(&opts.output_file).unwrap();
     formatted.write_all(&result.stdout).unwrap();

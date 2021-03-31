@@ -60,3 +60,25 @@ impl Write for Product {
         )
     }
 }
+
+impl Write for Attribute {
+    fn write(&self) -> std::string::String {
+        format!(
+            r#"<attribute title="{}">{}</attribute>"#,
+            self.name,
+            self.value
+        )
+    }
+}
+
+impl Write for Vec<Attribute> {
+    fn write(&self) -> std::string::String {
+        format!(
+            "<attributes>{}</attributes>",
+            self.iter()
+                .map(|a| a.write())
+                .collect::<Vec<String>>()
+                .join("")
+        )
+    }
+}

@@ -1,8 +1,3 @@
-#[derive(Clone, Debug)]
-pub struct Attribute {
-    pub name: String,
-    pub value: CData,
-}
 
 #[derive(Clone, Debug)]
 pub struct CData {

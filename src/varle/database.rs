@@ -1,9 +1,10 @@
-use crate::models::CData;
 use crate::database::*;
+use crate::models::CData;
 use crate::models::Category;
 use log::warn;
 use postgres::Client;
 use postgres::NoTls;
+use super::models::Attribute;
 use super::models::Product;
 use super::models::Root;
 
@@ -115,4 +116,47 @@ where c.id is null
         }
         products
     }
+}
+
+pub fn get_product_attributes(db: &Database, id: i32) -> Vec<Attribute> {
+    let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
+    let mut attributes = Vec::new();
+    for row in client
+        .query(
+            "
+select distinct key, title
+from product_metadata pm
+where attribute_owner_id = $1;",
+            &[&id],
+        )
+        .unwrap()
+    {
+        attributes.push(Attribute {
+            name: insert_escaped_characters(match row.get(0){
+                Some(val) => val,
+                None => panic!("Failed to read attributes key, value was null")
+            }),
+            value: insert_escaped_characters(match row.get(1){
+                Some(val) => val,
+                None => panic!("Failed to read attributes value, value was null")
+            }),
+        })
+    }
+    attributes
+}
+
+pub fn insert_escaped_characters(val: String) -> String {
+    let re = regex::Regex::new("&#x[0-9]{2,4};").unwrap();
+        // println!("{:?}", &val);
+    if re.is_match(&val) {
+        println!("{:?}", &val);
+
+
+    }
+
+    val
+
+
+
+
 }

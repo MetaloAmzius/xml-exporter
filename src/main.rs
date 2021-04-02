@@ -59,9 +59,7 @@ fn main() {
                 .arg("temp.xml")
                 .output()
                 .unwrap(),
-            2 => std::process::Command::new("xmllint")
-                .arg("-format")
-                .arg("-c14n")
+            2 => std::process::Command::new("cat")
                 .arg("temp.xml")
                 .output()
                 .unwrap(),

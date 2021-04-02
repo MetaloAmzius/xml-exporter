@@ -1,10 +1,10 @@
 use crate::database::*;
 use crate::models::CData;
-use crate::models::Category;
 use log::warn;
 use postgres::Client;
 use postgres::NoTls;
 use super::models::Attribute;
+use super::models::Category;
 use super::models::Product;
 use super::models::Root;
 
@@ -159,4 +159,42 @@ pub fn insert_escaped_characters(val: String) -> String {
 
 
 
+}
+
+impl Loadable for Category {
+    fn load_all(db: &Database) -> Vec<Self> {
+        let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
+        let mut categories = Vec::new();
+        for row in client
+            .query("select id, category_id, name from categories;", &[])
+            .unwrap()
+        {
+            let mut result = Category {
+                id: match row.get(0)
+                {
+                    Some(val) => val,
+                    None => panic!("Failed to read Category ID, value was null")
+                },
+                parent_id: match row.get(1){
+                    Some(val) => val,
+                    None => panic!("Failed to read Category parent_id, value was null")
+                },
+                name: CData { data: match row.get(2) {
+                    Some(val) => val,
+                    None => panic!("Failed to read Category name, value was null")
+                }},
+            };
+
+
+            if result.parent_id == Some(0) {
+                 result.parent_id = None;
+            }
+
+            if result.id != 0 {
+               categories.push(result);
+            }
+        }
+
+        categories
+    }
 }

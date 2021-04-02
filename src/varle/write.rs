@@ -82,3 +82,29 @@ impl Write for Vec<Attribute> {
         )
     }
 }
+
+impl Write for Vec<Category> {
+    fn write(&self) -> std::string::String {
+        format!(
+            "<categories>{}</categories>",
+            self.iter()
+                .map(|cat| cat.write())
+                .collect::<Vec<String>>()
+                .join("")
+        )
+    }
+}
+
+impl Write for Category {
+    fn write(&self) -> std::string::String {
+        format!(
+            "<category><id>{}</id>{}<name>{}</name>\n</category>",
+            self.id,
+            match self.parent_id {
+                Some(val) => format!("<parent>{}</parent>", val),
+                None => "<parent/>".to_string()
+            },
+            self.name.write()
+        )
+    }
+}

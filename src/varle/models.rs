@@ -1,16 +1,10 @@
 use crate::models::CData;
-use crate::models::Category;
 use crate::models::Image;
 
 #[derive(Clone, Debug)]
 pub struct Attribute {
     pub name: String,
     pub value: String,
-}
-
-pub struct Root {
-    pub categories: Vec<Category>,
-    pub products: Vec<Product>,
 }
 
 #[derive(Clone, Debug)]
@@ -30,4 +24,15 @@ pub struct Product {
     pub prime_costs: String,
     pub images: Vec<Image>,
     pub weight: Option<String>,
+}
+
+pub struct Category {
+    pub id: i32,
+    pub parent_id: Option<i32>,
+    pub name: CData,
+}
+
+pub struct Root {
+    pub categories: Vec<Category>,
+    pub products: Vec<Product>,
 }

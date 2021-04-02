@@ -5,13 +5,13 @@ use crate::database::get_product_images;
 use crate::database::get_product_manufacturer;
 use crate::database::get_product_quantity;
 use crate::models::CData;
-use crate::models::Category;
 use either::Left;
 use either::Right;
 use log::warn;
 use postgres::Client;
 use postgres::NoTls;
 use super::models::Attribute;
+use super::models::Category;
 use super::models::Product;
 use super::models::Root;
 use super::models::SimpleProduct;
@@ -262,4 +262,33 @@ where attribute_owner_id = $1;",
         })
     }
     attributes
+}
+
+impl Loadable for Category {
+    fn load_all(db: &Database) -> Vec<Self> {
+        let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
+        let mut categories = Vec::new();
+        for row in client
+            .query("select id, category_id, name from categories;", &[])
+            .unwrap()
+        {
+            categories.push(Category {
+                id: match row.get(0)
+                {
+                    Some(val) => val,
+                    None => panic!("Failed to read Category ID, value was null")
+                },
+                parent_id: match row.get(1){
+                    Some(val) => val,
+                    None => panic!("Failed to read Category parent_id, value was null")
+                },
+                name: CData { data: match row.get(2) {
+                    Some(val) => val,
+                    None => panic!("Failed to read Category name, value was null")
+                }},
+            })
+        }
+
+        categories
+    }
 }

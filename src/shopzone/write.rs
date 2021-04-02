@@ -1,4 +1,9 @@
-use super::models::{Attribute, Product, Root, SimpleProduct, VariantProduct};
+use super::models::Attribute;
+use super::models::Category;
+use super::models::Product;
+use super::models::Root;
+use super::models::SimpleProduct;
+use super::models::VariantProduct;
 use crate::models::*;
 use either::Either;
 use either::Left;
@@ -115,6 +120,29 @@ impl Write for Root {
             "<root>{}{}</root>",
             Write::write(&self.categories),
             Write::write(&self.products)
+        )
+    }
+}
+
+impl Write for Vec<Category> {
+    fn write(&self) -> std::string::String {
+        format!(
+            "<categories>{}</categories>",
+            self.iter()
+                .map(|cat| cat.write())
+                .collect::<Vec<String>>()
+                .join("")
+        )
+    }
+}
+
+impl Write for Category {
+    fn write(&self) -> std::string::String {
+        format!(
+            "<category><id>{}</id><parent>{}</parent><name>{}</name>\n</category>",
+            self.id,
+            self.parent_id,
+            self.name.write()
         )
     }
 }

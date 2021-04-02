@@ -1,5 +1,4 @@
 use crate::models::CData;
-use crate::models::Category;
 use crate::models::Image;
 use either::Either;
 
@@ -9,24 +8,10 @@ pub struct Attribute {
     pub value: CData,
 }
 
-pub struct Root {
-    pub categories: Vec<Category>,
-    pub products: Vec<Product>,
-}
-
-#[derive(Clone, Debug)]
-pub struct VariantProduct {
-    pub sku: Option<String>,
-    pub variants: Vec<SimpleProduct>,
-    pub quantity: i64,
-}
-#[derive(Clone, Debug)]
-pub struct SimpleProduct {
-    pub attributes: Vec<Attribute>,
-    pub sku: String,
-    pub quantity: i64,
-    pub price: String,
-    pub price_old: String,
+pub struct Category {
+    pub id: i32,
+    pub parent_id: i32,
+    pub name: CData,
 }
 
 #[derive(Clone, Debug)]
@@ -41,4 +26,25 @@ pub struct Product {
     pub ty: Either<SimpleProduct, VariantProduct>,
     pub weight: Option<String>,
     pub images: Vec<Image>,
+}
+
+pub struct Root {
+    pub categories: Vec<Category>,
+    pub products: Vec<Product>,
+}
+
+#[derive(Clone, Debug)]
+pub struct SimpleProduct {
+    pub attributes: Vec<Attribute>,
+    pub sku: String,
+    pub quantity: i64,
+    pub price: String,
+    pub price_old: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct VariantProduct {
+    pub sku: Option<String>,
+    pub variants: Vec<SimpleProduct>,
+    pub quantity: i64,
 }

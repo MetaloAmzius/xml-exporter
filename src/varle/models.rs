@@ -24,6 +24,7 @@ pub struct Product {
     pub prime_costs: String,
     pub images: Vec<Image>,
     pub weight: Option<String>,
+    pub barcode: Option<String>,
 }
 
 pub struct Category {

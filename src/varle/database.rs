@@ -30,7 +30,8 @@ impl Loadable for Product {
            c.sku,
            c.name as title,
            c.description,
-           cast(cast(c.price as decimal) / 1.21 / 1.3 as text) as prime_cost
+           cast(cast(c.price as decimal) / 1.21 / 1.3 as text) as prime_cost,
+           c.barcode
       from products p
 inner join products c on p.id = c.parent_id
      where c.active = 't'
@@ -43,7 +44,8 @@ select p.id,
        p.sku,
        p.name as title,
        p.description,
-       cast(cast(p.price as decimal) / 1.21 / 1.3 as text) as prime_cost
+       cast(cast(p.price as decimal) / 1.21 / 1.3 as text) as prime_cost,
+       p.barcode
 from products p
 left join products c on p.id = c.parent_id
 where c.id is null
@@ -112,6 +114,7 @@ where c.id is null
                 },
                 images: get_product_images(db, id),
                 weight: None,
+                barcode: row.get(8),
             })
         }
         products

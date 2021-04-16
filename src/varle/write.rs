@@ -40,6 +40,7 @@ impl Write for Product {
 <price_old>{}</price_old>
 <prime_costs>{}</prime_costs>
 {}
+{}
 </product>\n",
             self.id,
             self.categories
@@ -56,9 +57,28 @@ impl Write for Product {
             self.price,
             self.price_old,
             self.prime_costs,
-            self.attributes.write()
+            self.attributes.write(),
+            match &self.barcode {
+                Some(barcode) => format!("<barcode_format>EAN</barcode_format>\n<barcode>{}{}</barcode>",
+                                         barcode, calculate_ean_checksum_digit(barcode)),
+                None => "".to_string()
+            }
+
         )
     }
+}
+
+fn calculate_ean_checksum_digit(barcode: &str) -> u32 {
+    let mut alternator = 3;
+    10 - (barcode.chars()
+          .map(|c| {
+              alternator = match alternator {
+                  1 => 3,
+                  3 => 1,
+                  _ => 3
+              };
+              c.to_digit(10).unwrap() * alternator})
+          .sum::<u32>() % 10)
 }
 
 impl Write for Attribute {

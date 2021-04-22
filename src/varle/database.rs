@@ -3,6 +3,10 @@ use crate::models::CData;
 use log::warn;
 use postgres::Client;
 use postgres::NoTls;
+use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
+use std::ops::Div;
+use std::ops::Mul;
 use super::models::Attribute;
 use super::models::Category;
 use super::models::Product;
@@ -91,13 +95,7 @@ where c.id is null
                     None => panic!("Failed to read product sku, value was null")
                 },
                 quantity: get_product_quantity(db, id),
-                price: match row.get(2) {
-                    Some(result) => result,
-                    None => {
-                        warn!("Product ({}) with no price", id);
-                        "".to_string()
-                    }
-                },
+                price: get_product_sale_price(db, id),
                 price_old: match row.get(3) {
                     Some(result) => result,
                     None => {
@@ -153,15 +151,9 @@ pub fn insert_escaped_characters(val: String) -> String {
         // println!("{:?}", &val);
     if re.is_match(&val) {
         println!("{:?}", &val);
-
-
     }
 
     val
-
-
-
-
 }
 
 impl Loadable for Category {
@@ -200,4 +192,63 @@ impl Loadable for Category {
 
         categories
     }
+}
+
+fn get_product_sale_price(db: &Database, id: i32) -> String {
+    let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
+    let mut price: Decimal = Decimal::new(0, 0);
+    for row in client.query("
+   select p.price,
+          pp.percentage_off,
+          pp.absolute_off
+     from products p
+left join product_promotions pp on p.promotion_id = pp.id
+                               and pp.expiry > now()
+    where p.id = $1;
+",
+            &[&id],)
+        .unwrap()
+    {
+        price = Decimal::from_str(
+            match row.get(0)
+            {
+                Some(val) => val,
+                None => panic!("Failed to read price for product, value was null")
+            }).unwrap();
+
+        if let Ok(percentage_off) = row.try_get::<'_, usize, Decimal>(1) {
+            return price.mul(Decimal::new(10000, 2) - percentage_off)
+                        .div(Decimal::new(10000, 2))
+                        .to_string();
+        }
+
+        if let Ok(absolute_off) = row.try_get::<'_, usize, Decimal>(2) {
+            return (price - absolute_off).to_string();
+        }
+    }
+
+    for row in client.query("
+    select pc.id,
+           pc.name,
+           pc.sale_price_off_percent
+      from products p
+inner join product_categories_relations pcr on p.id = pcr.product_id
+inner join categories c on pcr.category_id = c.id
+ left join categories pc on pc.id = c.category_id
+                            or pc.id = c.id
+     where p.id = $1
+           and pc.on_sale = true
+           and now() between pc.promotion_start and pc.promotion_end
+  order by pc.sale_price_off_percent desc;
+", &[&id],).unwrap()
+    {
+        if let Ok(discount) = row.try_get::<'_, usize, Decimal>(2) {
+            return price.mul(Decimal::new(10000, 2) - discount)
+                        .div(Decimal::new(10000, 2))
+                        .to_string();
+        }
+
+    }
+
+    price.to_string()
 }

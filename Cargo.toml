@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 clap = "3.0.0-beta.2"
+rust_decimal = { version = "", features = ["db-postgres"] }
 either = "1.6.1"
 env_logger = ""
 log = "0.4.11"

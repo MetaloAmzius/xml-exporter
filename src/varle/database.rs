@@ -39,6 +39,7 @@ impl Loadable for Product {
       from products p
 inner join products c on p.id = c.parent_id
      where c.active = 't'
+          and c.sku is not null
 union all
 --Get all child-less products
 select p.id,
@@ -54,7 +55,8 @@ from products p
 left join products c on p.id = c.parent_id
 where c.id is null
       and (p.parent_id is null or p.parent_id = 0)
-      and p.active = 't';
+      and p.active = 't'
+      and p.sku is not null;
 ",
                 &[],
             )
@@ -71,7 +73,7 @@ where c.id is null
                 },
                 id: match row.get(4){
                     Some(val) => val,
-                    None => panic!("Failed to read product sku, value was null")
+                    None => panic!("Failed to read product sku, value was null: {}", &id)
                 },
                 title: CData { data: match row.get(5) {
                     Some(val) => val,

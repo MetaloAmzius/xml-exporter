@@ -25,7 +25,7 @@ fn load_simple_products(db: &Database) -> Vec<Product> {
     for row in client
         .query(
             "
-select concat('https://metaloamzius.lt', p.name_with_slug) as url,
+select concat('https://metaloamzius.lt/produktas/', p.name_with_slug) as url,
        p.id,
        p.sku,
        null as categories,

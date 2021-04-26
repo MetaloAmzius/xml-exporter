@@ -42,7 +42,10 @@ select concat('https://metaloamzius.lt/produktas/', p.name_with_slug) as url,
        null as attributes
 from products p
 left join products c on p.id = c.parent_id
-where c.id is null and p.active = 't';
+where c.id is null and p.active = 't'
+      and not exists (select null
+                        from product_categories_relations
+                       where category_id = 1237 and product_id = p.id);
 ",
             &[],
         )
@@ -116,7 +119,10 @@ select concat('https://metaloamzius.lt/produktas/', p.name_with_slug) as url,
        p.stock_quantity as quantity
 from products p
 left join products c on p.id = c.parent_id
-where c.id is not null and p.active = 't';
+where c.id is not null and p.active = 't'
+      and not exists (select null
+                        from product_categories_relations
+                       where category_id = 1237 and (product_id = p.id or product_id = c.id));
 ",
             &[],
         )

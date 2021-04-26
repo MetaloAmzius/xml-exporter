@@ -27,6 +27,7 @@ impl Loadable for Product {
         for row in client
             .query(
                 "
+select * from (
 --Get all child products
     select c.id,
            concat('https://metaloamzius.lt', c.name_with_slug) as url,
@@ -40,22 +41,27 @@ impl Loadable for Product {
       from products p
 inner join products c on p.id = c.parent_id
      where c.active = 't'
-union all
+
+ union all
 --Get all child-less products
-select p.id,
-       concat('https://metaloamzius.lt', p.name_with_slug) as url,
-       p.price,
-       p.price as price_old,
-       p.sku,
-       p.name as title,
-       p.description,
-       cast(cast(p.price as decimal) / 1.21 / 1.3 as text) as prime_cost,
-       p.barcode
-from products p
-left join products c on p.id = c.parent_id
-where c.id is null
-      and (p.parent_id is null or p.parent_id = 0)
-      and p.active = 't'
+    select p.id,
+           concat('https://metaloamzius.lt', p.name_with_slug) as url,
+           p.price,
+           p.price as price_old,
+           p.sku,
+           p.name as title,
+           p.description,
+           cast(cast(p.price as decimal) / 1.21 / 1.3 as text) as prime_cost,
+           p.barcode
+      from products p
+ left join products c on p.id = c.parent_id
+     where c.id is null
+       and (p.parent_id is null or p.parent_id = 0)
+       and p.active = 't'
+) p
+where not exists (select null
+                  from product_categories_relations
+                 where category_id = 1237 and product_id = p.id);
 ",
                 &[],
             )

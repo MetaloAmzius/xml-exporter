@@ -60,8 +60,8 @@ inner join products c on p.id = c.parent_id
        and p.active = 't'
 ) p
 where not exists (select null
-                  from product_categories_relations
-                 where category_id = 1237 and product_id = p.id);
+                    from product_categories_relations
+                   where category_id = 1237 and product_id = p.id);
 ",
                 &[],
             )

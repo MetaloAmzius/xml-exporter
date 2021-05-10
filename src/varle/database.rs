@@ -208,7 +208,7 @@ fn get_product_sale_price(db: &Database, id: i32) -> String {
     let mut price: Decimal = Decimal::new(0, 0);
     for row in client.query("
    select p.price,
-          pp.percentage_off,
+          least(coalesce(pp.percentage_off, 0), 20) as percentage_off,
           pp.absolute_off
      from products p
 left join product_promotions pp on p.promotion_id = pp.id
@@ -225,21 +225,21 @@ left join product_promotions pp on p.promotion_id = pp.id
                 None => panic!("Failed to read price for product, value was null")
             }).unwrap();
 
+        if let Ok(absolute_off) = row.try_get::<'_, usize, Decimal>(2) {
+            return (price - absolute_off).to_string();
+        }
+
         if let Ok(percentage_off) = row.try_get::<'_, usize, Decimal>(1) {
             return price.mul(Decimal::new(10000, 2) - percentage_off)
                         .div(Decimal::new(10000, 2))
                         .to_string();
-        }
-
-        if let Ok(absolute_off) = row.try_get::<'_, usize, Decimal>(2) {
-            return (price - absolute_off).to_string();
         }
     }
 
     for row in client.query("
     select pc.id,
            pc.name,
-           pc.sale_price_off_percent
+           least(pc.sale_price_off_percent, 20) as sale_price_off_percent
       from products p
 inner join product_categories_relations pcr on p.id = pcr.product_id
 inner join categories c on pcr.category_id = c.id

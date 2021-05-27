@@ -1,17 +1,17 @@
 extern crate env_logger;
 
-use crate::write::Write;
+use clap::Clap;
 use crate::database::Database;
+use crate::write::Write;
 use log::debug;
 use std::fs::File;
 use std::io::Write as OtherWrite;
 
-mod shopzone;
-mod models;
 mod database;
-mod write;
+mod models;
+mod shopzone;
 mod varle;
-use clap::Clap;
+mod write;
 
 #[derive(Clap)]
 #[clap(version = "0.2.3", author = "Ignas Lapėnas <ignas@lapenas.dev>")]

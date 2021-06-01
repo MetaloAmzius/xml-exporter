@@ -1,6 +1,6 @@
 [package]
 name = "xml-exporter"
-version = "0.2.3"
+version = "0.3.0"
 authors = ["Ignas Lapėnas <ignas@lapenas.dev>"]
 edition = "2018"
 
@@ -8,9 +8,11 @@ edition = "2018"
 
 [dependencies]
 clap = "3.0.0-beta.2"
-rust_decimal = { version = "", features = ["db-postgres"] }
 either = "1.6.1"
 env_logger = ""
 log = "0.4.11"
 postgres = "0.19.0"
 regex = "1.4.2"
+rivile-client = { version = "", git = "ssh://git@gitlab.com/metalo-amzius/rivile-client.git" }
+rust_decimal = { version = "", features = ["db-postgres"] }
+tokio = { version = "", features = ["rt-multi-thread"] }

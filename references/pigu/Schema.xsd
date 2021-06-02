@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema attributeFormDefault="unqualified"
+           elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:complexType name="attributes">
+		<xs:all>
+			<xs:element name="barcodes" type="barcodes" />
+			<xs:element name="supplier-code" type="xs:string" />
+			<xs:element minOccurs="0" name="manufacturer-code" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="barcodes">
+		<xs:sequence>
+			<xs:element minOccurs="1" maxOccurs="unbounded" name="barcode" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+    <xs:complexType name="multi-dimensions">
+        <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="unbounded" name="dimension"
+                        type="dimension" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="dimension">
+        <xs:all>
+            <xs:element name="weight">
+                <xs:simpleType>
+                    <xs:restriction base="xs:float" />
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="length">
+                <xs:simpleType>
+                    <xs:restriction base="xs:float" />
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="height">
+                <xs:simpleType>
+                    <xs:restriction base="xs:float" />
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="width">
+                <xs:simpleType>
+                    <xs:restriction base="xs:float" />
+                </xs:simpleType>
+            </xs:element>
+            <xs:element minOccurs="0" name="package-barcode" type="xs:string" />
+        </xs:all>
+    </xs:complexType>
+	<xs:complexType name="properties">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="property"
+			            type="property" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="property">
+		<xs:sequence minOccurs="0">
+			<xs:element minOccurs="0" name="id" type="xs:string" />
+			<xs:element minOccurs="0" name="values">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" name="value">
+							<xs:simpleType>
+								<xs:restriction base="xs:string" />
+							</xs:simpleType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+				<xs:unique name="unique-items">
+					<xs:selector xpath="item" />
+					<xs:field xpath="value-id" />
+				</xs:unique>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="images">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="image"
+			            type="image" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="image">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="md5">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:pattern value="[a-zA-Z0-9]*" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="url" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="modifications">
+		<xs:sequence>
+			<xs:element minOccurs="1" maxOccurs="unbounded" name="modification"
+			            type="modification" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="modification">
+		<xs:all>
+			<xs:element minOccurs="0" name="modification-title" type="xs:string" />
+            <xs:element minOccurs="0" name="modification-title-ru" type="xs:string" />
+            <xs:element minOccurs="0" name="modification-title-lv" type="xs:string" />
+            <xs:element minOccurs="0" name="modification-title-ee" type="xs:string" />
+            <xs:element minOccurs="0" name="multi-dimensions" type="multi-dimensions" />
+			<xs:element minOccurs="0" name="weight">
+				<xs:simpleType>
+					<xs:restriction base="xs:float" />
+				</xs:simpleType>
+			</xs:element>
+			<xs:element minOccurs="0" name="length">
+				<xs:simpleType>
+					<xs:restriction base="xs:float" />
+				</xs:simpleType>
+			</xs:element>
+			<xs:element minOccurs="0" name="height">
+				<xs:simpleType>
+					<xs:restriction base="xs:float" />
+				</xs:simpleType>
+			</xs:element>
+			<xs:element minOccurs="0" name="width">
+				<xs:simpleType>
+					<xs:restriction base="xs:float" />
+				</xs:simpleType>
+			</xs:element>
+			<xs:element minOccurs="0" name="package-barcode" type="xs:string" />
+			<xs:element name="attributes" type="attributes" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="colours">
+		<xs:sequence>
+			<xs:element minOccurs="1" maxOccurs="unbounded" name="colour"
+			            type="colour" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="colour">
+		<xs:all>
+			<xs:element minOccurs="0" name="colour-title" type="xs:string" />
+            <xs:element minOccurs="0" name="colour-title-ru" type="xs:string" />
+            <xs:element minOccurs="0" name="colour-title-lv" type="xs:string" />
+            <xs:element minOccurs="0" name="colour-title-ee" type="xs:string" />
+			<xs:element minOccurs="0" name="images" type="images" />
+			<xs:element minOccurs="1" name="modifications" type="modifications" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="product">
+		<xs:all>
+			<xs:element name="category-id" type="xs:string" />
+            <xs:element name="category-name">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:minLength value="1"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+			<xs:element name="title" type="xs:string" />
+			<xs:element minOccurs="0" name="title-ru" type="xs:string" />
+			<xs:element minOccurs="0" name="title-lv" type="xs:string" />
+			<xs:element minOccurs="0" name="title-ee" type="xs:string" />
+			<xs:element minOccurs="0" name="long-description" type="xs:string" />
+			<xs:element minOccurs="0" name="long-description-ru" type="xs:string" />
+			<xs:element minOccurs="0" name="long-description-lv" type="xs:string" />
+			<xs:element minOccurs="0" name="long-description-ee" type="xs:string" />
+			<xs:element minOccurs="0" name="comments" type="xs:string" />
+			<xs:element minOccurs="0" name="video-youtube" type="xs:string" />
+			<xs:element minOccurs="0" name="guarantee" type="xs:unsignedInt" />
+			<xs:element minOccurs="0" name="properties" type="properties" />
+			<xs:element minOccurs="0" name="delivery_hours" type="xs:unsignedInt" />
+			<xs:element minOccurs="1" name="colours" type="colours" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:element name="products">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element minOccurs="0" maxOccurs="unbounded" name="product" type="product" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

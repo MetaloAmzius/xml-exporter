@@ -20,3 +20,16 @@ impl Write for Image {
         format!("<image>{}</image>", self.data)
     }
 }
+
+pub fn calculate_ean_checksum_digit(barcode: &str) -> u32 {
+    let mut alternator = 3;
+    10 - (barcode.chars()
+          .map(|c| {
+              alternator = match alternator {
+                  1 => 3,
+                  3 => 1,
+                  _ => 3
+              };
+              c.to_digit(10).unwrap() * alternator})
+          .sum::<u32>() % 10)
+}

@@ -1,3 +1,4 @@
+use crate::write::calculate_ean_checksum_digit;
 use crate::Write;
 use super::models::*;
 
@@ -57,19 +58,6 @@ impl Write for Product {
 
         )
     }
-}
-
-fn calculate_ean_checksum_digit(barcode: &str) -> u32 {
-    let mut alternator = 3;
-    10 - (barcode.chars()
-          .map(|c| {
-              alternator = match alternator {
-                  1 => 3,
-                  3 => 1,
-                  _ => 3
-              };
-              c.to_digit(10).unwrap() * alternator})
-          .sum::<u32>() % 10)
 }
 
 impl Write for Attribute {

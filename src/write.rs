@@ -4,15 +4,14 @@ pub trait Write {
     fn write(&self) -> String;
 }
 
-impl Write for Vec<Image> {
+impl<T> Write for Vec<T>
+where T: Write
+{
     fn write(&self) -> std::string::String {
-        format!(
-            "<images>{}</images>",
-            self.iter()
-                .map(|i| i.write())
-                .collect::<Vec<String>>()
-                .join("")
-        )
+        self.iter()
+            .map(|p| p.write())
+            .collect::<Vec<String>>()
+            .join("").to_string()
     }
 }
 

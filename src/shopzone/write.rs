@@ -19,23 +19,19 @@ impl Write for Option<CData> {
     }
 }
 
-impl Write for Vec<Product> {
-    fn write(&self) -> std::string::String {
-        format!(
-            "<products>{}</products>",
-            self.iter()
-                .map(|p| p.write())
-                .collect::<Vec<String>>()
-                .join("")
-        )
-    }
-}
-
-
 impl Write for Product {
     fn write(&self) -> std::string::String {
         format!(
-            "<product><id>{}</id><title>{}</title><description>{}</description><warranty/><weight/><manufacturer>{}</manufacturer>{}{}</product>\n",
+            "<product>
+<id>{}</id>
+<title>{}</title>
+<description>{}</description>
+<warranty/>
+<weight/>
+<manufacturer>{}</manufacturer>
+<images>{}</images>
+{}
+</product>\n",
             self.id,
             self.title.write(),
             self.description.write(),
@@ -56,22 +52,14 @@ impl Write for Attribute {
     }
 }
 
-impl Write for Vec<Attribute> {
-    fn write(&self) -> std::string::String {
-        format!(
-            "<attributes>{}</attributes>",
-            self.iter()
-                .map(|a| a.write())
-                .collect::<Vec<String>>()
-                .join("")
-        )
-    }
-}
-
 impl Write for SimpleProduct {
     fn write(&self) -> std::string::String {
         format!(
-            "<sku>{}</sku><quantity>{}</quantity><price>{}</price><price_old>{}</price_old>{}",
+            "<sku>{}</sku>
+<quantity>{}</quantity>
+<price>{}</price>
+<price_old>{}</price_old>
+<attributes>{}</attributes>",
             self.sku,
             self.quantity,
             self.price,
@@ -117,21 +105,9 @@ impl Write for CData {
 impl Write for Root {
     fn write(&self) -> std::string::String {
         format!(
-            "<root>{}{}</root>",
+            "<root><categories>{}</categories><products>{}</products></root>",
             Write::write(&self.categories),
             Write::write(&self.products)
-        )
-    }
-}
-
-impl Write for Vec<Category> {
-    fn write(&self) -> std::string::String {
-        format!(
-            "<categories>{}</categories>",
-            self.iter()
-                .map(|cat| cat.write())
-                .collect::<Vec<String>>()
-                .join("")
         )
     }
 }

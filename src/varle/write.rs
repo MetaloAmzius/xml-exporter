@@ -4,21 +4,12 @@ use super::models::*;
 impl Write for Root {
     fn write(&self) -> std::string::String {
         format!(
-            "<root>{}{}</root>",
+            "<root>
+<categories>{}</categories>
+<products>{}</products>
+</root>",
             Write::write(&self.categories),
             Write::write(&self.products)
-        )
-    }
-}
-
-impl Write for Vec<Product> {
-    fn write(&self) -> std::string::String {
-        format!(
-            "<products>{}</products>",
-            self.iter()
-                .map(|p| p.write())
-                .collect::<Vec<String>>()
-                .join("")
         )
     }
 }
@@ -39,7 +30,7 @@ impl Write for Product {
 <price>{}</price>
 <price_old>{}</price_old>
 <prime_costs>{}</prime_costs>
-{}
+<attributes>{}</attributes>
 {}
 </product>\n",
             self.id,
@@ -87,30 +78,6 @@ impl Write for Attribute {
             r#"<attribute title="{}">{}</attribute>"#,
             self.name,
             self.value
-        )
-    }
-}
-
-impl Write for Vec<Attribute> {
-    fn write(&self) -> std::string::String {
-        format!(
-            "<attributes>{}</attributes>",
-            self.iter()
-                .map(|a| a.write())
-                .collect::<Vec<String>>()
-                .join("")
-        )
-    }
-}
-
-impl Write for Vec<Category> {
-    fn write(&self) -> std::string::String {
-        format!(
-            "<categories>{}</categories>",
-            self.iter()
-                .map(|cat| cat.write())
-                .collect::<Vec<String>>()
-                .join("")
         )
     }
 }

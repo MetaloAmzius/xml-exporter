@@ -25,7 +25,7 @@ impl Write for Product {
 <warranty/>
 <weight/>
 <manufacturer>{}</manufacturer>
-{}
+<images>{}<images>
 <sku>{}</sku>
 <quantity>{}</quantity>
 <price>{}</price>

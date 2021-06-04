@@ -1,3 +1,6 @@
+use crate::pigu::models::Modification;
+use crate::pigu::models::Attributes;
+use crate::pigu::models::Colour;
 use crate::models::CData;
 use rust_decimal::Decimal;
 use postgres::NoTls;
@@ -12,13 +15,23 @@ pub fn load(db: &Database, rivile_db:Vec<rivile_client::models::Product>) -> Roo
     Root {
         products: Product::load_all(db).into_iter()
                                        .filter_map(|p| match rivile_db.iter()
-                                                   .find(|rp| rp.code == p.sku){
+                                                   .find(|rp| rp.code == p.colours.first().unwrap()
+                                                         .modifications.first().unwrap()
+                                                         .attributes
+                                                         .supplier_code
+                                                   ){
                                                        Some(rp) => {
                                                            Some(Product {
-                                                               weight: rp.weight,
-                                                               length: rp.length,
-                                                               width: rp.width,
-                                                               height: rp.height,
+                                                               colours: vec!{ Colour {
+                                                                   modifications: vec! { Modification {
+                                                                       height: rp.height,
+                                                                       length: rp.length,
+                                                                       weight: rp.weight,
+                                                                       width: rp.width,
+                                                                       ..p.colours.first().unwrap()
+                                                                          .modifications.first().unwrap().clone()
+                                                                   }}
+                                                               }},
                                                                ..p
                                                            })
                                                        },
@@ -35,39 +48,54 @@ impl Loadable for Product {
 
         for row in client.query("
     select p.id,
-           sku,
+           p.sku,
+           pc.id,
+           pc.name,
            barcode,
-           name,
+           p.name,
            pm.title,
            p.description as modification
       from products p
 inner join product_metadata pm on p.id = pm.attribute_owner_id
                                 and pm.key in ('Tūris', 'Talpa', 'Diametras', 'Galia', 'Skersmuo', 'Dydis')
+cross join lateral (    select pcr.product_id, c.* from product_categories_relations pcr
+             inner join categories c on pcr.category_id = c.id
+                  where pcr.product_id = p.id
+               order by c.id desc
+                  limit 1) pc
+inner join categories c on c.id = pc.category_id
 where not exists (select null
                     from products
                    where parent_id = p.id) --exclude parent products
       and p.active = 't'
       and barcode is not null
-order by name;
+order by c.name;
 ", &[]).unwrap()
         {
             let id: i32 = row.try_get(0).unwrap();
             let sku: String = row.try_get(1).unwrap();
 
             products.push(Product {
-                sku,
-                barcode: row.try_get(2).unwrap(),
-                images: get_product_images(db, id),
-                title: row.try_get(3).unwrap(),
-                modification: row.try_get(4).unwrap(),
-                description: CData {
-                    data: row.try_get(5).unwrap()
+                category_id: row.try_get::<'_, _, i32>(2).unwrap().to_string(),
+                category_name: row.try_get(3).unwrap(),
+                colours: vec!{
+                    Colour {
+                        modifications: vec!{
+                            Modification {
+                                attributes: Attributes {
+                                    barcodes: vec!(),
+                                    supplier_code: sku
+                                },
+                                height: Decimal::new(0, 0),
+                                length: Decimal::new(0, 0),
+                                package_barcode: row.try_get(4).unwrap(),
+                                weight: Decimal::new(0, 0),
+                                width: Decimal::new(0, 0),
+                            }
+                        },
+                    }
                 },
-                weight: Decimal::new(0, 0),
-                length: Decimal::new(0, 0),
-                width: Decimal::new(0, 0),
-                height: Decimal::new(0, 0),
-
+                title: row.try_get(5).unwrap(),
             })
         }
         products

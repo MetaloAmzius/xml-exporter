@@ -8,30 +8,21 @@ use crate::pigu::models::Modification;
 use crate::pigu::models::Product;
 use crate::pigu::models::Root;
 
-impl Write for Root {
+impl Write for Attributes {
     fn write(&self) -> std::string::String {
-        format!("<root><products>{}</products></root>", self.products.write())
+        format!("<barcodes>{}</barcodes>
+<supplier-code>{}</supplier-code>",
+                self.barcodes.write(),
+                self.supplier_code
+        )
     }
 }
 
-
-impl Write for Product {
+impl Write for Barcode {
     fn write(&self) -> std::string::String {
-        format!("<product>
-<category-id>{}</category-id>
-<category-name>{}</category-name>
-<colours>{}</colours>
-<long-description>{}</long-description>
-<title>{}</title>
-</product>",
-                self.category_id,
-                self.category_name,
-                self.colours.write(),
-                self.long_description,
-                self.title,
-        )
+        format!("<barcode>{}{}</barcode>",
+                self.barcode, calculate_ean_checksum_digit(&self.barcode))
     }
-
 }
 
 impl Write for Colour {
@@ -42,6 +33,25 @@ impl Write for Colour {
 </colour>",
                 self.modifications.write(),
         self.images.write())
+    }
+}
+
+impl Write for Root {
+    fn write(&self) -> std::string::String {
+        format!("<root><products>{}</products></root>", self.products.write())
+    }
+}
+
+impl Write for Image {
+    fn write(&self) -> std::string::String {
+        format!("<image>
+<md5>{}</md5>
+<url>{}</url>
+</image>",
+                self.md5,
+                self.url,
+        )
+
     }
 }
 
@@ -62,32 +72,21 @@ impl Write for Modification {
     }
 }
 
-impl Write for Attributes {
+impl Write for Product {
     fn write(&self) -> std::string::String {
-        format!("<barcodes>{}</barcodes>
-<supplier-code>{}</supplier-code>",
-                self.barcodes.write(),
-                self.supplier_code
+        format!("<product>
+<category-id>{}</category-id>
+<category-name>{}</category-name>
+<colours>{}</colours>
+<long-description>{}</long-description>
+<title>{}</title>
+</product>",
+                self.category_id,
+                self.category_name,
+                self.colours.write(),
+                self.long_description,
+                self.title,
         )
     }
-}
 
-impl Write for Barcode {
-    fn write(&self) -> std::string::String {
-        format!("<barcode>{}{}</barcode>",
-                self.barcode, calculate_ean_checksum_digit(&self.barcode))
-    }
-}
-
-impl Write for Image {
-    fn write(&self) -> std::string::String {
-        format!("<image>
-<md5>{}</md5>
-<url>{}</url>
-</image>",
-                self.md5,
-                self.url,
-        )
-
-    }
 }

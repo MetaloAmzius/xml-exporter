@@ -1,7 +1,8 @@
+use crate::pigu::models::Image;
+use crate::pigu::models::Barcode;
 use crate::pigu::models::Modification;
 use crate::pigu::models::Attributes;
 use crate::pigu::models::Colour;
-use crate::models::CData;
 use rust_decimal::Decimal;
 use postgres::NoTls;
 use postgres::Client;
@@ -30,7 +31,8 @@ pub fn load(db: &Database, rivile_db:Vec<rivile_client::models::Product>) -> Roo
                                                                        width: rp.width,
                                                                        ..p.colours.first().unwrap()
                                                                           .modifications.first().unwrap().clone()
-                                                                   }}
+                                                                   }},
+                                                                   ..p.colours.first().unwrap().clone()
                                                                }},
                                                                ..p
                                                            })
@@ -60,7 +62,7 @@ inner join product_metadata pm on p.id = pm.attribute_owner_id
                                 and pm.key in ('Tūris', 'Talpa', 'Diametras', 'Galia', 'Skersmuo', 'Dydis')
 cross join lateral (    select pcr.product_id, c.* from product_categories_relations pcr
              inner join categories c on pcr.category_id = c.id
-                  where pcr.product_id = p.id
+                  where pcr.product_id = p.id and c.category_id = 543
                order by c.id desc
                   limit 1) pc
 inner join categories c on c.id = pc.category_id
@@ -83,22 +85,32 @@ order by c.name;
                         modifications: vec!{
                             Modification {
                                 attributes: Attributes {
-                                    barcodes: vec!(),
+                                    barcodes: vec!{ Barcode {
+                                        barcode: row.try_get(4).unwrap() }
+                                    },
                                     supplier_code: sku
                                 },
                                 height: Decimal::new(0, 0),
                                 length: Decimal::new(0, 0),
-                                package_barcode: row.try_get(4).unwrap(),
                                 weight: Decimal::new(0, 0),
                                 width: Decimal::new(0, 0),
                             }
                         },
+                        images: get_product_images(db, id).into_iter().map(|i| Image {
+                            url: i.data.clone(),
+                            md5: calculate_md5(&i.data)
+                        }).collect()
                     }
                 },
                 title: row.try_get(5).unwrap(),
+                long_description: row.try_get(7).unwrap(),
             })
         }
         products
     }
 }
 
+pub fn calculate_md5(image_url: &str) -> String {
+
+    "".to_string()
+}

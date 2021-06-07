@@ -35,8 +35,8 @@ struct Opts {
     output_file: String,
 
     /// Sets the exported output file style
-    /// Ex. 1 - Shopzone.lt, 2 - Varle.lt, 3 - Pigu.lt
     #[clap(short, long, default_value="2")]
+    /// Ex. 1 - Shopzone.lt, 2 - Varle.lt, 3 - Pigu.lt (Products), 4 - Pigu.lt (Remainders)
     style: i32,
 }
 

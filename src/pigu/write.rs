@@ -1,3 +1,4 @@
+use crate::pigu::models::Image;
 use crate::write::calculate_ean_checksum_digit;
 use crate::pigu::models::Barcode;
 use crate::pigu::models::Attributes;
@@ -20,12 +21,14 @@ impl Write for Product {
 <category-id>{}</category-id>
 <category-name>{}</category-name>
 <colours>{}</colours>
+<long-description>{}</long-description>
 <title>{}</title>
 </product>",
                 self.category_id,
                 self.category_name,
                 self.colours.write(),
-                self.title
+                self.long_description,
+                self.title,
         )
     }
 
@@ -35,8 +38,10 @@ impl Write for Colour {
     fn write(&self) -> std::string::String {
         format!("<colour>
 <modifications>{}</modifications>
+<images>{}</images>
 </colour>",
-                self.modifications.write())
+                self.modifications.write(),
+        self.images.write())
     }
 }
 
@@ -46,14 +51,12 @@ impl Write for Modification {
 <attributes>{}</attributes>
 <height>{}</height>
 <length>{}</length>
-<package_barcode>{}{}</package_barcode>
 <weight>{}</weight>
 <width>{}</width>
 </modification>",
                 self.attributes.write(),
                 self.height,
                 self.length,
-                self.package_barcode, calculate_ean_checksum_digit(&self.package_barcode),
                 self.weight,
                 self.width)
     }
@@ -73,5 +76,18 @@ impl Write for Barcode {
     fn write(&self) -> std::string::String {
         format!("<barcode>{}{}</barcode>",
                 self.barcode, calculate_ean_checksum_digit(&self.barcode))
+    }
+}
+
+impl Write for Image {
+    fn write(&self) -> std::string::String {
+        format!("<image>
+<md5>{}</md5>
+<url>{}</url>
+</image>",
+                self.md5,
+                self.url,
+        )
+
     }
 }

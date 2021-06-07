@@ -13,7 +13,7 @@ pub struct Barcode {
 
 #[derive(Clone, Debug)]
 pub struct Colour {
-    // pub images: Option<Vec<Image>>,
+    pub images: Vec<Image>,
     pub modifications: Vec<Modification>,
     // pub title: Option<String>,
     // pub title_ee: Option<String>,
@@ -42,7 +42,7 @@ pub struct Modification {
     pub height: Decimal,
     pub length: Decimal,
     // pub multi_dimensions: Option<Vec<Dimension>>,
-    pub package_barcode: String,
+    // pub package_barcode: String,
     // pub title: Option<String>,
     // pub title_ee: Option<String>,
     // pub title_lv: Option<String>,
@@ -59,7 +59,7 @@ pub struct Product {
     // pub comments: Option<String>,
     // pub delivery_hours: Option<u32>,
     // pub guarantee: Option<u32>,
-    // pub long_description: Option<String>,
+    pub long_description: String,
     // pub long_description_ee: Option<String>,
     // pub long_description_lv: Option<String>,
     // pub long_description_ru: Option<String>,

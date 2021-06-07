@@ -11,7 +11,7 @@ use crate::pigu::models::Root;
 impl Write for Attributes {
     fn write(&self) -> std::string::String {
         format!("<barcodes>{}</barcodes>
-<supplier-code>{}</supplier-code>",
+<supplier-code><![CDATA[{}]]></supplier-code>",
                 self.barcodes.write(),
                 self.supplier_code
         )
@@ -20,7 +20,7 @@ impl Write for Attributes {
 
 impl Write for Barcode {
     fn write(&self) -> std::string::String {
-        format!("<barcode>{}{}</barcode>",
+        format!("<barcode><![CDATA[{}{}]]></barcode>",
                 self.barcode, calculate_ean_checksum_digit(&self.barcode))
     }
 }
@@ -45,8 +45,8 @@ impl Write for Root {
 impl Write for Image {
     fn write(&self) -> std::string::String {
         format!("<image>
-<md5>{}</md5>
-<url>{}</url>
+<md5><![CDATA[{}]]></md5>
+<url><![CDATA[{}]]></url>
 </image>",
                 self.md5,
                 self.url,
@@ -75,11 +75,11 @@ impl Write for Modification {
 impl Write for Product {
     fn write(&self) -> std::string::String {
         format!("<product>
-<category-id>{}</category-id>
-<category-name>{}</category-name>
+<category-id><![CDATA[{}]]></category-id>
+<category-name><![CDATA[{}]]></category-name>
 <colours>{}</colours>
-<long-description>{}</long-description>
-<title>{}</title>
+<long-description><![CDATA[{}]]></long-description>
+<title><![CDATA[{}]]></title>
 </product>",
                 self.category_id,
                 self.category_name,

@@ -128,7 +128,7 @@ pub fn calculate_md5(image_url: &str) -> String {
     let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(async {
         let client = reqwest::ClientBuilder::new()
-            // .danger_accept_invalid_certs(true)
+            .danger_accept_invalid_certs(true)
             .build()
             .unwrap();
         let response = client.get(image_url).send().await.unwrap();

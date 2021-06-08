@@ -68,9 +68,14 @@ fn main() {
             let measured_products = rx.recv().unwrap();
             info!("Exporting {} products", measured_products.iter().count());
 
-            file.write_all(Write::write(&pigu::database::load(&db, measured_products)).as_bytes())
-                .expect("Failed to generate pigu lt xml");
+            file.write_all(
+                Write::write(&pigu::database::root::load(&db, measured_products)).as_bytes(),
+            )
+            .expect("Failed to generate pigu lt xml");
         }
+        4 => file
+            .write_all(Write::write(&pigu::database::remainders::load(&db)).as_bytes())
+            .expect("Failed to generate pigu.lt remainders xml"),
         _ => panic!(format!("incorrect style argument: {}", opts.style)),
     };
 
@@ -84,7 +89,7 @@ fn main() {
             .arg("temp.xml")
             .output()
             .unwrap(),
-        3 => std::process::Command::new("xmllint")
+        3 | 4 => std::process::Command::new("xmllint")
             .arg("-format")
             .arg("temp.xml")
             .output()

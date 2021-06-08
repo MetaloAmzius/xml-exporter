@@ -5,10 +5,10 @@ use super::models::Root;
 use super::models::SimpleProduct;
 use super::models::VariantProduct;
 use crate::models::*;
+use crate::write::Write;
 use either::Either;
 use either::Left;
 use either::Right;
-use crate::write::Write;
 
 impl Write for Option<CData> {
     fn write(&self) -> std::string::String {

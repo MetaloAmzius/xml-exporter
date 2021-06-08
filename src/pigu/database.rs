@@ -1,52 +1,63 @@
-use crate::pigu::models::Image;
-use crate::pigu::models::Barcode;
-use crate::pigu::models::Modification;
-use crate::pigu::models::Attributes;
-use crate::pigu::models::Colour;
-use rust_decimal::Decimal;
-use postgres::NoTls;
-use postgres::Client;
-use crate::Database;
-use crate::pigu::models::Root;
-use crate::database::Loadable;
 use crate::database::get_product_images;
+use crate::database::Loadable;
+use crate::pigu::models::Attributes;
+use crate::pigu::models::Barcode;
+use crate::pigu::models::Colour;
+use crate::pigu::models::Image;
+use crate::pigu::models::Modification;
 use crate::pigu::models::Product;
+use crate::pigu::models::Root;
+use crate::Database;
+use postgres::Client;
+use postgres::NoTls;
+use rust_decimal::Decimal;
 
-pub fn load(db: &Database, rivile_db:Vec<rivile_client::models::Product>) -> Root {
+pub fn load(db: &Database, rivile_db: Vec<rivile_client::models::Product>) -> Root {
     Root {
-        products: Product::load_all(db).into_iter()
-                                       .filter_map(|p| match rivile_db.iter()
-                                                   .find(|rp| rp.code == p.colours.first().unwrap()
-                                                         .modifications.first().unwrap()
-                                                         .attributes
-                                                         .supplier_code
-                                                   ){
-                                                       Some(rp) => {
-                                                           Some(Product {
-                                                               colours: vec!{ Colour {
-                                                                   modifications: vec! { Modification {
-                                                                       height: rp.height,
-                                                                       length: rp.length,
-                                                                       weight: rp.weight,
-                                                                       width: rp.width,
-                                                                       ..p.colours.first().unwrap()
-                                                                          .modifications.first().unwrap().clone()
-                                                                   }},
-                                                                   ..p.colours.first().unwrap().clone()
-                                                               }},
-                                                               ..p
-                                                           })
-                                                       },
-                                                       None => None
-                                                   })
-                                       .collect(),
+        products: Product::load_all(db)
+            .into_iter()
+            .filter_map(|p| {
+                match rivile_db.iter().find(|rp| {
+                    rp.code
+                        == p.colours
+                            .first()
+                            .unwrap()
+                            .modifications
+                            .first()
+                            .unwrap()
+                            .attributes
+                            .supplier_code
+                }) {
+                    Some(rp) => Some(Product {
+                        colours: vec![Colour {
+                            modifications: vec![Modification {
+                                height: rp.height,
+                                length: rp.length,
+                                weight: rp.weight,
+                                width: rp.width,
+                                ..p.colours
+                                    .first()
+                                    .unwrap()
+                                    .modifications
+                                    .first()
+                                    .unwrap()
+                                    .clone()
+                            }],
+                            ..p.colours.first().unwrap().clone()
+                        }],
+                        ..p
+                    }),
+                    None => None,
+                }
+            })
+            .collect(),
     }
 }
 
 impl Loadable for Product {
     fn load_all(db: &Database) -> Vec<Product> {
         let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
-        let mut products = vec!();
+        let mut products = vec![];
 
         for row in client.query("
     select p.id,
@@ -111,6 +122,23 @@ order by c.name;
 }
 
 pub fn calculate_md5(image_url: &str) -> String {
+    println!("Url: {}", image_url);
 
-    "".to_string()
+    let (tx, rx) = std::sync::mpsc::channel();
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    rt.block_on(async {
+        let client = reqwest::ClientBuilder::new()
+            // .danger_accept_invalid_certs(true)
+            .build()
+            .unwrap();
+        let response = client.get(image_url).send().await.unwrap();
+        let data = response.text().await.unwrap();
+        let hash = md5::compute(data);
+        println!("Hash: {:#?}", hash);
+        tx.send(hash).unwrap();
+    });
+    let hash = rx.recv().unwrap();
+
+    // hasher.update();
+    format!("{:x}", hash)
 }

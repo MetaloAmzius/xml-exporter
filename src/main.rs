@@ -1,8 +1,8 @@
 extern crate env_logger;
 
-use clap::Clap;
 use crate::database::Database;
 use crate::write::Write;
+use clap::Clap;
 use log::debug;
 use log::info;
 use rivile_client;
@@ -51,14 +51,16 @@ fn main() {
     let db = Database::new(&opts.connection_string);
 
     match opts.style {
-        1 => file.write_all(Write::write(&shopzone::database::load(&db)).as_bytes())
-                 .expect("Failed to generate shopzone xml"),
-        2 => file.write_all(Write::write(&varle::database::load(&db)).as_bytes())
-                 .expect("Failed to generate varle xml"),
+        1 => file
+            .write_all(Write::write(&shopzone::database::load(&db)).as_bytes())
+            .expect("Failed to generate shopzone xml"),
+        2 => file
+            .write_all(Write::write(&varle::database::load(&db)).as_bytes())
+            .expect("Failed to generate varle xml"),
         3 => {
             let (tx, rx) = std::sync::mpsc::channel();
             let rt = tokio::runtime::Runtime::new().unwrap();
-            rt.block_on (async {
+            rt.block_on(async {
                 let client = rivile_client::Client::new(opts.api_key.clone());
                 let measured_products = client.retrieve_fully_measured_products().await;
                 tx.send(measured_products).unwrap();
@@ -67,30 +69,28 @@ fn main() {
             info!("Exporting {} products", measured_products.iter().count());
 
             file.write_all(Write::write(&pigu::database::load(&db, measured_products)).as_bytes())
-                 .expect("Failed to generate pigu lt xml");
+                .expect("Failed to generate pigu lt xml");
         }
-        _ => panic!(format!("incorrect style argument: {}", opts.style))
+        _ => panic!(format!("incorrect style argument: {}", opts.style)),
     };
 
-
-    let result =
-        match opts.style {
-            1 => std::process::Command::new("xmllint")
-                .arg("-format")
-                .arg("temp.xml")
-                .output()
-                .unwrap(),
-            2 => std::process::Command::new("cat")
-                .arg("temp.xml")
-                .output()
-                .unwrap(),
-            3 => std::process::Command::new("xmllint")
-                .arg("-format")
-                .arg("temp.xml")
-                .output()
-                .unwrap(),
-            _ => panic!("incorrect style argument")
-        };
+    let result = match opts.style {
+        1 => std::process::Command::new("xmllint")
+            .arg("-format")
+            .arg("temp.xml")
+            .output()
+            .unwrap(),
+        2 => std::process::Command::new("cat")
+            .arg("temp.xml")
+            .output()
+            .unwrap(),
+        3 => std::process::Command::new("xmllint")
+            .arg("-format")
+            .arg("temp.xml")
+            .output()
+            .unwrap(),
+        _ => panic!("incorrect style argument"),
+    };
 
     let mut formatted = File::create(&opts.output_file).unwrap();
     formatted.write_all(&result.stdout).unwrap();
@@ -98,9 +98,10 @@ fn main() {
 }
 
 fn check_xmllint_version() {
-    let output = std::process::Command::new("xmllint").arg("--version")
-                                                      .output()
-                                                      .expect("Failed to check xmllint version...");
+    let output = std::process::Command::new("xmllint")
+        .arg("--version")
+        .output()
+        .expect("Failed to check xmllint version...");
     //TODO: add version check
     debug!("xmllint version: {:#?}", output);
 }

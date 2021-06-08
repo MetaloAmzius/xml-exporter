@@ -1,12 +1,13 @@
+use super::models::CData;
+use super::models::Image;
 use log::warn;
 use postgres::Client;
 use postgres::NoTls;
-use super::models::CData;
-use super::models::Image;
 
 pub trait Loadable {
     fn load_all(db: &Database) -> Vec<Self>
-        where Self: Sized;
+    where
+        Self: Sized;
 }
 
 pub struct Database {
@@ -36,9 +37,9 @@ where product_id = $1;
         )
         .unwrap()
     {
-        categories.push(match row.get(0){
+        categories.push(match row.get(0) {
             Some(val) => val,
-            None => panic!("Failed to read categories id, value was null")
+            None => panic!("Failed to read categories id, value was null"),
         });
     }
 
@@ -95,10 +96,12 @@ where p.id = $1 and c.category_id = 851;
         )
         .unwrap()
     {
-        return Some(CData { data: match row.get(1) {
-            Some(val) => val,
-            None => panic!("Failed to read category name, value was null")
-        }});
+        return Some(CData {
+            data: match row.get(1) {
+                Some(val) => val,
+                None => panic!("Failed to read category name, value was null"),
+            },
+        });
     }
 
     None

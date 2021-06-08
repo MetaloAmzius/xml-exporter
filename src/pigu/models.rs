@@ -8,7 +8,7 @@ pub struct Attributes {
 
 #[derive(Clone, Debug)]
 pub struct Barcode {
-    pub barcode: String
+    pub barcode: String,
 }
 
 #[derive(Clone, Debug)]
@@ -79,5 +79,5 @@ pub struct Property {
 
 #[derive(Clone, Debug)]
 pub struct Root {
-    pub products: Vec<Product>
+    pub products: Vec<Product>,
 }

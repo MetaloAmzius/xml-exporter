@@ -1,17 +1,17 @@
+use super::models::Attribute;
+use super::models::Category;
+use super::models::Product;
+use super::models::Root;
 use crate::database::*;
 use crate::models::CData;
 use log::error;
 use log::warn;
 use postgres::Client;
 use postgres::NoTls;
-use rust_decimal::Decimal;
 use rust_decimal::prelude::*;
+use rust_decimal::Decimal;
 use std::ops::Div;
 use std::ops::Mul;
-use super::models::Attribute;
-use super::models::Category;
-use super::models::Product;
-use super::models::Root;
 
 pub fn load(db: &Database) -> Root {
     Root {
@@ -67,25 +67,28 @@ where not exists (select null
             )
             .unwrap()
         {
-            let id = match row.get(0){
+            let id = match row.get(0) {
                 Some(val) => val,
-                None => panic!("Failed to read product_id, value was null")
+                None => panic!("Failed to read product_id, value was null"),
             };
             products.push(Product {
-                url: match row.get(1){
+                url: match row.get(1) {
                     Some(val) => val,
-                    None => panic!("Failed to read product url, value was null")
+                    None => panic!("Failed to read product url, value was null"),
                 },
-                id: match row.get(4){
+                id: match row.get(4) {
                     Some(val) => val,
-                    None => {error!("Failed to read product sku, value was null: {}", &id);
-                             continue;
+                    None => {
+                        error!("Failed to read product sku, value was null: {}", &id);
+                        continue;
                     }
                 },
-                title: CData { data: match row.get(5) {
-                    Some(val) => val,
-                    None => panic!("Failed to read product title, value was null")
-                }},
+                title: CData {
+                    data: match row.get(5) {
+                        Some(val) => val,
+                        None => panic!("Failed to read product title, value was null"),
+                    },
+                },
                 description: CData {
                     data: match row.get(6) {
                         Some(result) => result,
@@ -93,15 +96,15 @@ where not exists (select null
                             warn!("Product with no description");
                             "".to_string()
                         }
-                    }
+                    },
                 },
                 categories: get_product_categories(db, id),
                 manufacturer: get_product_manufacturer(db, id),
                 warranty: None,
                 attributes: get_product_attributes(db, id),
-                sku: match row.get(4){
+                sku: match row.get(4) {
                     Some(val) => val,
-                    None => panic!("Failed to read product sku, value was null")
+                    None => panic!("Failed to read product sku, value was null"),
                 },
                 quantity: get_product_quantity(db, id),
                 price: get_product_sale_price(db, id),
@@ -110,14 +113,14 @@ where not exists (select null
                     None => {
                         warn!("Product ({}) with no old_price", id);
                         "".to_string()
-                    },
+                    }
                 },
                 prime_costs: match row.get(7) {
                     Some(result) => result,
                     None => {
                         warn!("Product ({}) with no prime_costs", id);
                         "".to_string()
-                    },
+                    }
                 },
                 images: get_product_images(db, id),
                 weight: None,
@@ -142,13 +145,13 @@ where attribute_owner_id = $1;",
         .unwrap()
     {
         attributes.push(Attribute {
-            name: insert_escaped_characters(match row.get(0){
+            name: insert_escaped_characters(match row.get(0) {
                 Some(val) => val,
-                None => panic!("Failed to read attributes key, value was null")
+                None => panic!("Failed to read attributes key, value was null"),
             }),
-            value: insert_escaped_characters(match row.get(1){
+            value: insert_escaped_characters(match row.get(1) {
                 Some(val) => val,
-                None => panic!("Failed to read attributes value, value was null")
+                None => panic!("Failed to read attributes value, value was null"),
             }),
         })
     }
@@ -157,7 +160,7 @@ where attribute_owner_id = $1;",
 
 pub fn insert_escaped_characters(val: String) -> String {
     let re = regex::Regex::new("&#x[0-9]{2,4};").unwrap();
-        // println!("{:?}", &val);
+    // println!("{:?}", &val);
     if re.is_match(&val) {
         println!("{:?}", &val);
     }
@@ -174,28 +177,28 @@ impl Loadable for Category {
             .unwrap()
         {
             let mut result = Category {
-                id: match row.get(0)
-                {
+                id: match row.get(0) {
                     Some(val) => val,
-                    None => panic!("Failed to read Category ID, value was null")
+                    None => panic!("Failed to read Category ID, value was null"),
                 },
-                parent_id: match row.get(1){
+                parent_id: match row.get(1) {
                     Some(val) => val,
-                    None => panic!("Failed to read Category parent_id, value was null")
+                    None => panic!("Failed to read Category parent_id, value was null"),
                 },
-                name: CData { data: match row.get(2) {
-                    Some(val) => val,
-                    None => panic!("Failed to read Category name, value was null")
-                }},
+                name: CData {
+                    data: match row.get(2) {
+                        Some(val) => val,
+                        None => panic!("Failed to read Category name, value was null"),
+                    },
+                },
             };
 
-
             if result.parent_id == Some(0) {
-                 result.parent_id = None;
+                result.parent_id = None;
             }
 
             if result.id != 0 {
-               categories.push(result);
+                categories.push(result);
             }
         }
 
@@ -206,7 +209,9 @@ impl Loadable for Category {
 fn get_product_sale_price(db: &Database, id: i32) -> String {
     let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
     let mut price: Decimal = Decimal::new(0, 0);
-    for row in client.query("
+    for row in client
+        .query(
+            "
    select p.price,
           least(coalesce(pp.percentage_off, 0), 20) as percentage_off,
           pp.absolute_off
@@ -215,28 +220,31 @@ left join product_promotions pp on p.promotion_id = pp.id
                                and pp.expiry > now()
     where p.id = $1;
 ",
-            &[&id],)
+            &[&id],
+        )
         .unwrap()
     {
-        price = Decimal::from_str(
-            match row.get(0)
-            {
-                Some(val) => val,
-                None => panic!("Failed to read price for product, value was null")
-            }).unwrap();
+        price = Decimal::from_str(match row.get(0) {
+            Some(val) => val,
+            None => panic!("Failed to read price for product, value was null"),
+        })
+        .unwrap();
 
         if let Ok(absolute_off) = row.try_get::<'_, usize, Decimal>(2) {
             return (price - absolute_off).to_string();
         }
 
         if let Ok(percentage_off) = row.try_get::<'_, usize, Decimal>(1) {
-            return price.mul(Decimal::new(10000, 2) - percentage_off)
-                        .div(Decimal::new(10000, 2))
-                        .to_string();
+            return price
+                .mul(Decimal::new(10000, 2) - percentage_off)
+                .div(Decimal::new(10000, 2))
+                .to_string();
         }
     }
 
-    for row in client.query("
+    for row in client
+        .query(
+            "
     select pc.id,
            pc.name,
            least(pc.sale_price_off_percent, 20) as sale_price_off_percent
@@ -249,14 +257,17 @@ inner join categories c on pcr.category_id = c.id
            and pc.on_sale = true
            and now() between pc.promotion_start and pc.promotion_end
   order by pc.sale_price_off_percent desc;
-", &[&id],).unwrap()
+",
+            &[&id],
+        )
+        .unwrap()
     {
         if let Ok(discount) = row.try_get::<'_, usize, Decimal>(2) {
-            return price.mul(Decimal::new(10000, 2) - discount)
-                        .div(Decimal::new(10000, 2))
-                        .to_string();
+            return price
+                .mul(Decimal::new(10000, 2) - discount)
+                .div(Decimal::new(10000, 2))
+                .to_string();
         }
-
     }
 
     price.to_string()

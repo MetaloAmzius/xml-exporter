@@ -1,6 +1,6 @@
+use super::models::*;
 use crate::write::calculate_ean_checksum_digit;
 use crate::Write;
-use super::models::*;
 
 impl Write for Root {
     fn write(&self) -> std::string::String {
@@ -51,11 +51,13 @@ impl Write for Product {
             self.prime_costs,
             self.attributes.write(),
             match &self.barcode {
-                Some(barcode) => format!("<barcode_format>EAN</barcode_format>\n<barcode>{}{}</barcode>",
-                                         barcode, calculate_ean_checksum_digit(barcode)),
-                None => "".to_string()
+                Some(barcode) => format!(
+                    "<barcode_format>EAN</barcode_format>\n<barcode>{}{}</barcode>",
+                    barcode,
+                    calculate_ean_checksum_digit(barcode)
+                ),
+                None => "".to_string(),
             }
-
         )
     }
 }
@@ -64,8 +66,7 @@ impl Write for Attribute {
     fn write(&self) -> std::string::String {
         format!(
             r#"<attribute title="{}">{}</attribute>"#,
-            self.name,
-            self.value
+            self.name, self.value
         )
     }
 }
@@ -77,7 +78,7 @@ impl Write for Category {
             self.id,
             match self.parent_id {
                 Some(val) => format!("<parent>{}</parent>", val),
-                None => "<parent/>".to_string()
+                None => "<parent/>".to_string(),
             },
             self.name.write()
         )

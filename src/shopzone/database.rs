@@ -1,23 +1,21 @@
-use crate::database::Database;
-use crate::database::Loadable;
-use crate::database::get_product_categories;
-use crate::database::get_product_images;
-use crate::database::get_product_manufacturer;
-use crate::database::get_product_quantity;
-use crate::models::CData;
-use either::Left;
-use either::Right;
-use log::warn;
-use postgres::Client;
-use postgres::NoTls;
 use super::models::Attribute;
 use super::models::Category;
 use super::models::Product;
 use super::models::Root;
 use super::models::SimpleProduct;
 use super::models::VariantProduct;
-
-
+use crate::database::get_product_categories;
+use crate::database::get_product_images;
+use crate::database::get_product_manufacturer;
+use crate::database::get_product_quantity;
+use crate::database::Database;
+use crate::database::Loadable;
+use crate::models::CData;
+use either::Left;
+use either::Right;
+use log::warn;
+use postgres::Client;
+use postgres::NoTls;
 
 fn load_simple_products(db: &Database) -> Vec<Product> {
     let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
@@ -51,14 +49,14 @@ where c.id is null and p.active = 't'
         )
         .unwrap()
     {
-        let id = match row.get(1){
+        let id = match row.get(1) {
             Some(val) => val,
-            None => panic!("Failed to read product_id, value was null")
+            None => panic!("Failed to read product_id, value was null"),
         };
         products.push(Product {
-            url: match row.get(0){
+            url: match row.get(0) {
                 Some(val) => val,
-                None => panic!("Failed to read product url, value was null")
+                None => panic!("Failed to read product url, value was null"),
             },
             id,
             ty: Left(SimpleProduct {
@@ -70,21 +68,23 @@ where c.id is null and p.active = 't'
                         "".to_string()
                     }
                 },
-                price_old: match row.get(7){
+                price_old: match row.get(7) {
                     Some(val) => val,
-                    None => panic!("Failed to read product price, value was null")
+                    None => panic!("Failed to read product price, value was null"),
                 },
-                sku: match row.get(2){
+                sku: match row.get(2) {
                     Some(val) => val,
-                    None => panic!("Failed to read product price, value was null")
+                    None => panic!("Failed to read product price, value was null"),
                 },
                 quantity: get_product_quantity(db, id),
             }),
             categories: get_product_categories(db, id),
-            title: CData { data: match row.get(4) {
-                Some(val) => val,
-                None => panic!("Failed to read product title, value was null")
-            }},
+            title: CData {
+                data: match row.get(4) {
+                    Some(val) => val,
+                    None => panic!("Failed to read product title, value was null"),
+                },
+            },
             description: CData {
                 data: match row.get(5) {
                     Some(result) => result,
@@ -128,24 +128,28 @@ where c.id is not null and p.active = 't'
         )
         .unwrap()
     {
-        let id: i32 = match row.get(1){
+        let id: i32 = match row.get(1) {
             Some(val) => val,
-            None => panic!("Failed to read Product Id, value was null")
+            None => panic!("Failed to read Product Id, value was null"),
         };
         products.push(Product {
-            url: match row.get(0){
+            url: match row.get(0) {
                 Some(val) => val,
-                None => panic!("Failed to read Product Url, value was null")
+                None => panic!("Failed to read Product Url, value was null"),
             },
             id,
-            title: CData { data: match row.get(3) {
-                Some(val) => val,
-                None => panic!("Failed to read Product Title, value was null")
-            }},
-            description: CData { data: match row.get(4) {
-                Some(val) => val,
-                None => panic!("Failed to read Product Description, value was null")
-            }},
+            title: CData {
+                data: match row.get(3) {
+                    Some(val) => val,
+                    None => panic!("Failed to read Product Title, value was null"),
+                },
+            },
+            description: CData {
+                data: match row.get(4) {
+                    Some(val) => val,
+                    None => panic!("Failed to read Product Description, value was null"),
+                },
+            },
             categories: get_product_categories(db, id),
             manufacturer: get_product_manufacturer(db, id),
             warranty: None,
@@ -171,7 +175,6 @@ impl Loadable for Product {
 
         products
     }
-
 }
 
 pub fn load(db: &Database) -> Root {
@@ -195,7 +198,7 @@ where parent_id = $1;
         )
         .unwrap()
     {
-        return match row.get(0){
+        return match row.get(0) {
             Some(val) => val,
             None => {
                 warn!("Failed to read remainders count, value was null: {}", id);
@@ -219,24 +222,24 @@ where parent_id = $1;
         )
         .unwrap()
     {
-        let id: i32 = match row.get(2){
+        let id: i32 = match row.get(2) {
             Some(val) => val,
-            None => panic!("Failed to read product id, value was null")
+            None => panic!("Failed to read product id, value was null"),
         };
         result.push(SimpleProduct {
             attributes: get_product_attributes(db, id),
-            price: match row.get(0){
+            price: match row.get(0) {
                 Some(val) => val,
-                None => panic!("Failed to read product price, value was null")
+                None => panic!("Failed to read product price, value was null"),
             },
-            price_old: match row.get(0){
+            price_old: match row.get(0) {
                 Some(val) => val,
-                None => panic!("Failed to read product price, value was null")
+                None => panic!("Failed to read product price, value was null"),
             },
             quantity: get_product_quantity(db, id),
-            sku: match row.get(1){
+            sku: match row.get(1) {
                 Some(val) => val,
-                None => panic!("Failed to read product sku, value was null")
+                None => panic!("Failed to read product sku, value was null"),
             },
         })
     }
@@ -257,14 +260,16 @@ where attribute_owner_id = $1;",
         .unwrap()
     {
         attributes.push(Attribute {
-            name: match row.get(0){
+            name: match row.get(0) {
                 Some(val) => val,
-                None => panic!("Failed to read attributes key, value was null")
+                None => panic!("Failed to read attributes key, value was null"),
             },
-            value: CData { data: match row.get(1){
-                Some(val) => val,
-                None => panic!("Failed to read attributes value, value was null")
-            }},
+            value: CData {
+                data: match row.get(1) {
+                    Some(val) => val,
+                    None => panic!("Failed to read attributes value, value was null"),
+                },
+            },
         })
     }
     attributes
@@ -279,19 +284,20 @@ impl Loadable for Category {
             .unwrap()
         {
             categories.push(Category {
-                id: match row.get(0)
-                {
+                id: match row.get(0) {
                     Some(val) => val,
-                    None => panic!("Failed to read Category ID, value was null")
+                    None => panic!("Failed to read Category ID, value was null"),
                 },
-                parent_id: match row.get(1){
+                parent_id: match row.get(1) {
                     Some(val) => val,
-                    None => panic!("Failed to read Category parent_id, value was null")
+                    None => panic!("Failed to read Category parent_id, value was null"),
                 },
-                name: CData { data: match row.get(2) {
-                    Some(val) => val,
-                    None => panic!("Failed to read Category name, value was null")
-                }},
+                name: CData {
+                    data: match row.get(2) {
+                        Some(val) => val,
+                        None => panic!("Failed to read Category name, value was null"),
+                    },
+                },
             })
         }
 

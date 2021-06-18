@@ -65,24 +65,30 @@ impl Loadable for Product {
            pc.id,
            pc.name,
            barcode,
-           p.name,
+           case when trim(coalesce(p.pigu_lt_name, '')) = ''
+                then p.name
+                else p.pigu_lt_name
+           end as name,
            pm.title,
            p.description as modification
       from products p
 inner join product_metadata pm on p.id = pm.attribute_owner_id
                                 and pm.key in ('Tūris', 'Talpa', 'Diametras', 'Galia', 'Skersmuo', 'Dydis')
-cross join lateral (    select pcr.product_id, c.* from product_categories_relations pcr
-             inner join categories c on pcr.category_id = c.id
-                  where pcr.product_id = p.id and c.category_id = 543
-               order by c.id desc
-                  limit 1) pc
-inner join categories c on c.id = pc.category_id
+cross join lateral ( select plc.category_id as id,
+                            plc.name
+                       from product_categories_relations pcr
+                 inner join pigu_lt_categories_local_categories plclc on pcr.category_id = plclc.category_id
+                 inner join pigu_lt_categories plc on plc.id = plclc.pigu_lt_category_id
+                      where pcr.product_id = p.id
+) pc
 where not exists (select null
                     from products
                    where parent_id = p.id) --exclude parent products
       and p.active = 't'
       and barcode is not null
-order by c.name;
+      and not exists (select null
+                        from product_categories_relations
+                       where category_id = 1237 and product_id = p.id); --exlude Westmark
 ", &[]).unwrap()
         {
             let id: i32 = row.try_get(0).unwrap();

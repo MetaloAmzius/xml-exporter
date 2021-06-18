@@ -27,6 +27,9 @@ impl Loadable for Product {
       from products p
 inner join product_remainers pr on p.id = pr.product_id
      where p.barcode is not null
+           and not exists (select null
+                             from product_categories_relations
+                            where category_id = 1237 and product_id = p.id) --exlude Westmark
        and p.sku is not null
   group by p.id, p.sku, p.barcode, p.price
     having sum(coalesce(pr.count, 0)) > 0;

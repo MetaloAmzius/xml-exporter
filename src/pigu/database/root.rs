@@ -166,7 +166,10 @@ where attribute_owner_id = $1;",
     {
         attributes.push(Attribute {
             key: row.try_get(0).expect("Failed to read attributes key, value was null"),
-            value: row.try_get(1).expect("Failed to read attributes value, value was null"),
+            value: match row.try_get(1) {
+                Ok(val) => val,
+                Err(_) => "".to_string()
+            },
         })
     }
     attributes

@@ -1,4 +1,3 @@
-use crate::pigu::models::root::Attribute;
 use crate::database::get_product_images;
 use crate::database::Loadable;
 use crate::pigu::models::root::Attributes;
@@ -7,6 +6,7 @@ use crate::pigu::models::root::Colour;
 use crate::pigu::models::root::Image;
 use crate::pigu::models::root::Modification;
 use crate::pigu::models::root::Product;
+use crate::pigu::models::root::Property;
 use crate::pigu::models::root::Root;
 use crate::Database;
 use postgres::Client;
@@ -107,7 +107,6 @@ where not exists (select null
                                         barcode: row.try_get(4).unwrap() }
                                     },
                                     supplier_code: sku,
-                                    attributes: get_product_attributes(db, id)
                                 },
                                 height: Decimal::new(0, 0),
                                 length: Decimal::new(0, 0),
@@ -123,6 +122,7 @@ where not exists (select null
                 },
                 title: row.try_get(5).unwrap(),
                 long_description: row.try_get(7).unwrap(),
+                properties: get_product_properties(db, id)
             })
         }
         products
@@ -151,7 +151,7 @@ pub fn calculate_md5(image_url: &str) -> String {
     format!("{:x}", hash)
 }
 
-pub fn get_product_attributes(db: &Database, id: i32) -> Vec<Attribute> {
+pub fn get_product_properties(db: &Database, id: i32) -> Vec<Property> {
     let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
     let mut attributes = Vec::new();
     for row in client
@@ -164,12 +164,14 @@ where attribute_owner_id = $1;",
         )
         .unwrap()
     {
-        attributes.push(Attribute {
-            key: row.try_get(0).expect("Failed to read attributes key, value was null"),
-            value: match row.try_get(1) {
+        attributes.push(Property {
+            id: row
+                .try_get(0)
+                .expect("Failed to read attributes key, value was null"),
+            values: vec![match row.try_get(1) {
                 Ok(val) => val,
-                Err(_) => "".to_string()
-            },
+                Err(_) => "".to_string(),
+            }],
         })
     }
     attributes

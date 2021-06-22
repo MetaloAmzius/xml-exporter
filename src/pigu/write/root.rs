@@ -1,4 +1,4 @@
-use crate::pigu::models::root::Attribute;
+use crate::pigu::models::root::Property;
 use crate::pigu::models::root::Attributes;
 use crate::pigu::models::root::Barcode;
 use crate::pigu::models::root::Colour;
@@ -9,12 +9,20 @@ use crate::pigu::models::root::Root;
 use crate::write::calculate_ean_checksum_digit;
 use crate::Write;
 
-impl Write for Attribute {
+impl Write for Property {
     fn write(&self) -> std::string::String {
-        format!("<attribute>
-<key>{}</key>
-<value>{}</value>
-</attribute>", self.key, self.value)
+        format!(
+            "<property>
+<id>{}</id>
+<values>{}</values>
+</property>",
+            self.id,
+            self.values
+                .iter()
+                .map(|v| format!("<value>{}</value>", v))
+                .collect::<Vec<String>>()
+                .join("\n")
+        )
     }
 }
 
@@ -22,11 +30,9 @@ impl Write for Attributes {
     fn write(&self) -> std::string::String {
         format!(
             "<barcodes>{}</barcodes>
-<supplier-code><![CDATA[{}]]></supplier-code>
-{}",
+<supplier-code><![CDATA[{}]]></supplier-code>",
             self.barcodes.write(),
             self.supplier_code,
-            self.attributes.iter().map(|a| a.write()).collect::<Vec<String>>().join("")
         )
     }
 }
@@ -56,10 +62,7 @@ impl Write for Colour {
 
 impl Write for Root {
     fn write(&self) -> std::string::String {
-        format!(
-            "<products>{}</products>",
-            self.products.write()
-        )
+        format!("<products>{}</products>", self.products.write())
     }
 }
 

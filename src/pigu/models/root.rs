@@ -4,13 +4,6 @@ use rust_decimal::Decimal;
 pub struct Attributes {
     pub barcodes: Vec<Barcode>,
     pub supplier_code: String,
-    pub attributes: Vec<Attribute>,
-}
-
-#[derive(Clone, Debug)]
-pub struct Attribute {
-    pub key: String,
-    pub value: String
 }
 
 #[derive(Clone, Debug)]
@@ -70,7 +63,7 @@ pub struct Product {
     // pub long_description_ee: Option<String>,
     // pub long_description_lv: Option<String>,
     // pub long_description_ru: Option<String>,
-    // pub properties: Option<Vec<Property>>,
+    pub properties: Vec<Property>,
     pub title: String,
     // pub title_ee: Option<String>,
     // pub title_lv: Option<String>,

@@ -1,10 +1,10 @@
-use rust_decimal::Decimal;
 use crate::database::Loadable;
 use crate::pigu::models::remainders::Product;
 use crate::pigu::models::remainders::Root;
 use crate::Database;
 use postgres::Client;
 use postgres::NoTls;
+use rust_decimal::Decimal;
 use std::str::FromStr;
 
 pub fn load(db: &Database) -> Root {
@@ -18,7 +18,9 @@ impl Loadable for Product {
         let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
         let mut products = vec![];
 
-        for row in client.query("
+        for row in client
+            .query(
+                "
     select p.id,
            p.sku,
            p.barcode,
@@ -33,7 +35,10 @@ inner join product_remainers pr on p.id = pr.product_id
        and p.sku is not null
   group by p.id, p.sku, p.barcode, p.price
     having sum(coalesce(pr.count, 0)) > 0;
-", &[]).unwrap()
+",
+                &[],
+            )
+            .unwrap()
         {
             products.push(Product {
                 sku: row.try_get(1).unwrap(),

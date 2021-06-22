@@ -70,10 +70,9 @@ impl Write for Image {
     fn write(&self) -> std::string::String {
         format!(
             "<image>
-<md5><![CDATA[{}]]></md5>
 <url><![CDATA[{}]]></url>
 </image>",
-            self.md5, self.url,
+            self.url,
         )
     }
 }

@@ -104,12 +104,14 @@ impl Write for Product {
 <category-name><![CDATA[{}]]></category-name>
 <colours>{}</colours>
 <long-description><![CDATA[{}]]></long-description>
+<properties>{}</properties>
 <title><![CDATA[{}]]></title>
 </product>",
             self.category_id,
             self.category_name,
             self.colours.write(),
             self.long_description,
+            self.properties.write(),
             self.title,
         )
     }

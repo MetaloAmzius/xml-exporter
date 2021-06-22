@@ -76,7 +76,7 @@ fn main() {
         4 => file
             .write_all(Write::write(&pigu::database::remainders::load(&db)).as_bytes())
             .expect("Failed to generate pigu.lt remainders xml"),
-        _ => panic!(format!("incorrect style argument: {}", opts.style)),
+        _ => panic!("incorrect style argument: {}", opts.style),
     };
 
     let result = match opts.style {

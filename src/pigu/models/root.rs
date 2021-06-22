@@ -4,6 +4,13 @@ use rust_decimal::Decimal;
 pub struct Attributes {
     pub barcodes: Vec<Barcode>,
     pub supplier_code: String,
+    pub attributes: Vec<Attribute>,
+}
+
+#[derive(Clone, Debug)]
+pub struct Attribute {
+    pub key: String,
+    pub value: String
 }
 
 #[derive(Clone, Debug)]

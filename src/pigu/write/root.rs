@@ -57,7 +57,7 @@ impl Write for Colour {
 impl Write for Root {
     fn write(&self) -> std::string::String {
         format!(
-            "<root><products>{}</products></root>",
+            "<products>{}</products>",
             self.products.write()
         )
     }

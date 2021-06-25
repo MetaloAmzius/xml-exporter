@@ -51,11 +51,11 @@ impl Write for Colour {
     fn write(&self) -> std::string::String {
         format!(
             "<colour>
-<modifications>{}</modifications>
 <images>{}</images>
+<modifications>{}</modifications>
 </colour>",
+            self.images.write(),
             self.modifications.write(),
-            self.images.write()
         )
     }
 }
@@ -81,17 +81,17 @@ impl Write for Modification {
     fn write(&self) -> std::string::String {
         format!(
             "<modification>
-<attributes>{}</attributes>
-<height>{}</height>
-<length>{}</length>
 <weight>{}</weight>
+<length>{}</length>
+<height>{}</height>
 <width>{}</width>
+<attributes>{}</attributes>
 </modification>",
-            self.attributes.write(),
-            self.height,
-            self.length,
             self.weight,
-            self.width
+            self.length,
+            self.height,
+            self.width,
+            self.attributes.write(),
         )
     }
 }
@@ -102,17 +102,17 @@ impl Write for Product {
             "<product>
 <category-id><![CDATA[{}]]></category-id>
 <category-name><![CDATA[{}]]></category-name>
-<colours>{}</colours>
+<title><![CDATA[{}]]></title>
 <long-description><![CDATA[{}]]></long-description>
 <properties>{}</properties>
-<title><![CDATA[{}]]></title>
+<colours>{}</colours>
 </product>",
             self.category_id,
             self.category_name,
-            self.colours.write(),
+            self.title,
             self.long_description,
             self.properties.write(),
-            self.title,
+            self.colours.write(),
         )
     }
 }

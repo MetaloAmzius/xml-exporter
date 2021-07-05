@@ -9,50 +9,60 @@ use crate::pigu::models::root::Product;
 use crate::pigu::models::root::Property;
 use crate::pigu::models::root::Root;
 use crate::Database;
+use log::info;
 use postgres::Client;
 use postgres::NoTls;
 use rust_decimal::Decimal;
 
 pub fn load(db: &Database, rivile_db: Vec<rivile_client::models::Product>) -> Root {
-    Root {
-        products: Product::load_all(db)
-            .into_iter()
-            .filter_map(|p| {
-                match rivile_db.iter().find(|rp| {
-                    rp.code
-                        == p.colours
-                            .first()
-                            .unwrap()
-                            .modifications
-                            .first()
-                            .unwrap()
-                            .attributes
-                            .supplier_code
-                }) {
-                    Some(rp) => Some(Product {
-                        colours: vec![Colour {
-                            modifications: vec![Modification {
-                                height: rp.height,
-                                length: rp.length,
-                                weight: rp.weight,
-                                width: rp.width,
-                                ..p.colours
-                                    .first()
-                                    .unwrap()
-                                    .modifications
-                                    .first()
-                                    .unwrap()
-                                    .clone()
-                            }],
-                            ..p.colours.first().unwrap().clone()
+    let products = Product::load_all(db);
+    info!(
+        "Loaded {} products from metaloamzius.lt database",
+        products.len()
+    );
+
+    info!("Applying box sizes filter");
+
+    let products: Vec<Product> = products
+        .into_iter()
+        .filter_map(|p| {
+            match rivile_db.iter().find(|rp| {
+                rp.code
+                    == p.colours
+                        .first()
+                        .unwrap()
+                        .modifications
+                        .first()
+                        .unwrap()
+                        .attributes
+                        .supplier_code
+            }) {
+                Some(rp) => Some(Product {
+                    colours: vec![Colour {
+                        modifications: vec![Modification {
+                            height: rp.height,
+                            length: rp.length,
+                            weight: rp.weight,
+                            width: rp.width,
+                            ..p.colours
+                                .first()
+                                .unwrap()
+                                .modifications
+                                .first()
+                                .unwrap()
+                                .clone()
                         }],
-                        ..p
-                    }),
-                    None => None,
-                }
-            })
-            .collect(),
-    }
+                        ..p.colours.first().unwrap().clone()
+                    }],
+                    ..p
+                }),
+                None => None,
+            }
+        })
+        .collect();
+
+    info!("{} products remaining", products.len());
+    Root { products }
 }
 
 impl Loadable for Product {

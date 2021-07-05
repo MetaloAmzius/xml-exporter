@@ -32,7 +32,7 @@ pub struct Dimension {
 
 #[derive(Clone, Debug)]
 pub struct Image {
-    pub md5: String,
+    // pub md5: String,
     pub url: String,
 }
 

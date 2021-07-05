@@ -116,7 +116,6 @@ where not exists (select null
                         },
                         images: get_product_images(db, id).into_iter().map(|i| Image {
                             url: i.data.clone(),
-                            md5: calculate_md5(&i.data)
                         }).collect()
                     }
                 },
@@ -127,28 +126,6 @@ where not exists (select null
         }
         products
     }
-}
-
-pub fn calculate_md5(image_url: &str) -> String {
-    println!("Url: {}", image_url);
-
-    let (tx, rx) = std::sync::mpsc::channel();
-    let rt = tokio::runtime::Runtime::new().unwrap();
-    rt.block_on(async {
-        let client = reqwest::ClientBuilder::new()
-            .danger_accept_invalid_certs(true)
-            .build()
-            .unwrap();
-        let response = client.get(image_url).send().await.unwrap();
-        let data = response.text().await.unwrap();
-        let hash = md5::compute(data);
-        println!("Hash: {:#?}", hash);
-        tx.send(hash).unwrap();
-    });
-    let hash = rx.recv().unwrap();
-
-    // hasher.update();
-    format!("{:x}", hash)
 }
 
 pub fn get_product_properties(db: &Database, id: i32) -> Vec<Property> {

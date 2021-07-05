@@ -25,7 +25,7 @@ impl Write for Image {
 
 pub fn calculate_ean_checksum_digit(barcode: &str) -> u32 {
     let mut alternator = 3;
-    10 - (barcode
+    (10 - (barcode
         .chars()
         .map(|c| {
             alternator = match alternator {
@@ -35,6 +35,6 @@ pub fn calculate_ean_checksum_digit(barcode: &str) -> u32 {
             };
             c.to_digit(10).unwrap() * alternator
         })
-        .sum::<u32>()
-        % 10)
+        .sum::<u32>()))
+        % 10
 }

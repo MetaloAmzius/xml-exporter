@@ -28,11 +28,21 @@ impl Loadable for Product {
            sum(coalesce(pr.count, 0)) as stock
       from products p
 inner join product_remainers pr on p.id = pr.product_id
+inner join product_metadata pm on p.id = pm.attribute_owner_id
+                               and pm.key in ('Tūris', 'Talpa', 'Diametras', 'Galia', 'Skersmuo', 'Dydis')
+cross join lateral ( select plc.category_id as id,
+                            plc.name
+                       from product_categories_relations pcr
+                 inner join pigu_lt_categories_local_categories plclc on pcr.category_id = plclc.category_id
+                 inner join pigu_lt_categories plc on plc.id = plclc.pigu_lt_category_id
+                      where pcr.product_id = p.id
+) pc
      where p.barcode is not null
            and not exists (select null
                              from product_categories_relations
                             where category_id = 1237 and product_id = p.id) --exlude Westmark
        and p.sku is not null
+       and p.active = 't'
   group by p.id, p.sku, p.barcode, p.price
     having sum(coalesce(pr.count, 0)) > 0;
 ",

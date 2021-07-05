@@ -74,7 +74,7 @@ impl Loadable for Product {
            p.description as modification
       from products p
 inner join product_metadata pm on p.id = pm.attribute_owner_id
-                                and pm.key in ('Tūris', 'Talpa', 'Diametras', 'Galia', 'Skersmuo', 'Dydis')
+                               and pm.key in ('Tūris', 'Talpa', 'Diametras', 'Galia', 'Skersmuo', 'Dydis')
 cross join lateral ( select plc.category_id as id,
                             plc.name
                        from product_categories_relations pcr

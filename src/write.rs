@@ -35,6 +35,7 @@ pub fn calculate_ean_checksum_digit(barcode: &str) -> u32 {
             };
             c.to_digit(10).unwrap() * alternator
         })
-        .sum::<u32>()))
+        .sum::<u32>()
+        % 10))
         % 10
 }

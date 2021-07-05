@@ -1,10 +1,10 @@
-use crate::pigu::models::root::Property;
 use crate::pigu::models::root::Attributes;
 use crate::pigu::models::root::Barcode;
 use crate::pigu::models::root::Colour;
 use crate::pigu::models::root::Image;
 use crate::pigu::models::root::Modification;
 use crate::pigu::models::root::Product;
+use crate::pigu::models::root::Property;
 use crate::pigu::models::root::Root;
 use crate::write::calculate_ean_checksum_digit;
 use crate::Write;

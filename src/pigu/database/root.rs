@@ -70,11 +70,8 @@ impl Loadable for Product {
                 then p.name
                 else p.pigu_lt_name
            end as name,
-           pm.title,
            p.description as modification
       from products p
-inner join product_metadata pm on p.id = pm.attribute_owner_id
-                               and pm.key in ('Tūris', 'Talpa', 'Diametras', 'Galia', 'Skersmuo', 'Dydis')
 cross join lateral ( select plc.category_id as id,
                             plc.name
                        from product_categories_relations pcr
@@ -120,7 +117,7 @@ where not exists (select null
                     }
                 },
                 title: row.try_get(5).unwrap(),
-                long_description: row.try_get(7).unwrap(),
+                long_description: row.try_get(6).unwrap(),
                 properties: get_product_properties(db, id)
             })
         }

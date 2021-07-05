@@ -28,8 +28,6 @@ impl Loadable for Product {
            sum(coalesce(pr.count, 0)) as stock
       from products p
 inner join product_remainers pr on p.id = pr.product_id
-inner join product_metadata pm on p.id = pm.attribute_owner_id
-                               and pm.key in ('Tūris', 'Talpa', 'Diametras', 'Galia', 'Skersmuo', 'Dydis')
 cross join lateral ( select plc.category_id as id,
                             plc.name
                        from product_categories_relations pcr

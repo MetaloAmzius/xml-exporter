@@ -19,7 +19,7 @@ impl Write for Property {
             self.id,
             self.values
                 .iter()
-                .map(|v| format!("<value>{}</value>", v))
+                .map(|v| format!("<value><![CDATA[{}]]></value>", v))
                 .collect::<Vec<String>>()
                 .join("\n")
         )

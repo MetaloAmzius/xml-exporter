@@ -1,6 +1,7 @@
 extern crate env_logger;
 
 use crate::database::Database;
+use crate::write::calculate_ean_checksum_digit;
 use crate::write::Write;
 use clap::Clap;
 use log::debug;
@@ -76,6 +77,52 @@ fn main() {
         4 => file
             .write_all(Write::write(&pigu::database::remainders::load(&db)).as_bytes())
             .expect("Failed to generate pigu.lt remainders xml"),
+        5 => {
+            let (tx, rx) = std::sync::mpsc::channel();
+            let rt = tokio::runtime::Runtime::new().unwrap();
+            rt.block_on(async {
+                let client = rivile_client::Client::new(opts.api_key.clone());
+                let measured_products = client.retrieve_fully_measured_products().await;
+                tx.send(measured_products).unwrap();
+            });
+
+            let measured_products = rx.recv().unwrap();
+            info!("Exporting {} products", measured_products.iter().count());
+
+            let products = &pigu::database::root::load(&db, measured_products);
+            let failed_products = products.products.iter().map(|p| {
+                p.colours
+                    .iter()
+                    .next()
+                    .unwrap()
+                    .modifications
+                    .first()
+                    .unwrap()
+                    .attributes.clone()
+            });
+            let failed_products = failed_products.into_iter().filter(|attr| {
+                attr.barcodes.iter().any(|bc| {
+                    broken_checksum_calculation(&bc.barcode)
+                        != calculate_ean_checksum_digit(&bc.barcode)
+                })
+            });
+
+            println!("sku,bad,good");
+            for fp in failed_products {
+                println!("{},{}{},{}{}",
+                         fp.supplier_code,
+                         fp.barcodes.first().unwrap().barcode,
+                         broken_checksum_calculation(&fp.barcodes.first().unwrap().barcode),
+                         fp.barcodes.first().unwrap().barcode,
+                         calculate_ean_checksum_digit(&fp.barcodes.first().unwrap().barcode));
+            }
+
+            // let failed_products = failed_products.map( |fp| Shit {
+            //     sku: fp.
+            // } )
+
+            // println!("{:#?}", failed_products);
+        }
         _ => panic!("incorrect style argument: {}", opts.style),
     };
 
@@ -100,6 +147,22 @@ fn main() {
     let mut formatted = File::create(&opts.output_file).unwrap();
     formatted.write_all(&result.stdout).unwrap();
     std::fs::remove_file("temp.xml").unwrap();
+}
+
+fn broken_checksum_calculation(barcode: &str) -> u32 {
+    let mut alternator = 3;
+    10 - (barcode
+        .chars()
+        .map(|c| {
+            alternator = match alternator {
+                1 => 3,
+                3 => 1,
+                _ => 3,
+            };
+            c.to_digit(10).unwrap() * alternator
+        })
+        .sum::<u32>()
+        % 10)
 }
 
 fn check_xmllint_version() {

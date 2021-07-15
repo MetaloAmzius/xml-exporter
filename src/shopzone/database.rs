@@ -14,6 +14,7 @@ use crate::models::CData;
 use either::Left;
 use either::Right;
 use log::warn;
+use log::error;
 use postgres::Client;
 use postgres::NoTls;
 
@@ -224,7 +225,9 @@ where parent_id = $1;
     {
         let id: i32 = match row.get(2) {
             Some(val) => val,
-            None => panic!("Failed to read product id, value was null"),
+            None => {
+                error!("Failed to read product id, value was null");
+                continue;},
         };
         result.push(SimpleProduct {
             attributes: get_product_attributes(db, id),
@@ -267,7 +270,10 @@ where attribute_owner_id = $1;",
             value: CData {
                 data: match row.get(1) {
                     Some(val) => val,
-                    None => panic!("Failed to read attributes value, value was null"),
+                    None => {
+                        error!("Failed to read attributes value (Null value) for product: {}", id);
+                        continue;
+                    },
                 },
             },
         })

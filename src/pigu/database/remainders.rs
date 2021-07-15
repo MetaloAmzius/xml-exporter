@@ -28,6 +28,7 @@ impl Loadable for Product {
            sum(coalesce(pr.count, 0)) as stock
       from products p
 inner join product_remainers pr on p.id = pr.product_id
+inner join stores s on s.id = pr.store_id and s.code not in ('TR', 'ES', '') -- filter out stores
 cross join lateral ( select plc.category_id as id,
                             plc.name
                        from product_categories_relations pcr

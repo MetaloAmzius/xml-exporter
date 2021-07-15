@@ -112,8 +112,10 @@ pub fn get_product_quantity(db: &Database, id: i32) -> i64 {
     for row in client
         .query(
             "
-select sum(count) from product_remainers
-where product_id = $1;
+    select sum(pr.count)
+      from product_remainers pr
+inner join stores s on s.id = pr.store_id and s.code not in ('TR', 'ES', '')
+     where product_id = $1;
 ",
             &[&id],
         )

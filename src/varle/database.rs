@@ -151,7 +151,10 @@ where attribute_owner_id = $1;",
             }),
             value: insert_escaped_characters(match row.get(1) {
                 Some(val) => val,
-                None => panic!("Failed to read attributes value, value was null"),
+                None => {
+                    error!("Failed to read attributes value (null value) for product id: {}", id);
+                    continue;
+                },
             }),
         })
     }

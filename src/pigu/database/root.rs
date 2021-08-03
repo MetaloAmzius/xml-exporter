@@ -89,12 +89,13 @@ cross join lateral ( select plc.category_id as id,
                  inner join pigu_lt_categories plc on plc.id = plclc.pigu_lt_category_id
                       where pcr.product_id = p.id
 ) pc
-where not exists (select null
-                    from products
-                   where parent_id = p.id) --exclude parent products
-      and p.active = 't'
-      and barcode is not null
-      and not exists (select null
+     where p.active = 't'
+       and p.sku is not null
+       and p.barcode is not null
+       and not exists (select null
+                             from products
+                            where parent_id = p.id) --exclude parent products
+       and not exists (select null
                         from product_categories_relations
                        where category_id = 1237 and product_id = p.id); --exlude Westmark
 ", &[]).unwrap()

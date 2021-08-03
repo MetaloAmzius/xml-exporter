@@ -88,6 +88,7 @@ cross join lateral ( select plc.category_id as id,
                  inner join pigu_lt_categories_local_categories plclc on pcr.category_id = plclc.category_id
                  inner join pigu_lt_categories plc on plc.id = plclc.pigu_lt_category_id
                       where pcr.product_id = p.id
+                      limit 1
 ) pc
      where p.active = 't'
        and p.sku is not null

@@ -45,7 +45,7 @@ impl Write for Product {
 impl Write for Attribute {
     fn write(&self) -> std::string::String {
         format!(
-            r#"<attribute title="{}">{}</attribute>"#,
+            r#"<attribute title="{}"><![CDATA[{}]]</attribute>"#,
             self.name,
             self.value.write()
         )

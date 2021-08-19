@@ -1,6 +1,6 @@
 [package]
 name = "xml-exporter"
-version = "0.3.3"
+version = "0.3.4"
 authors = ["Ignas Lapėnas <ignas@lapenas.dev>"]
 edition = "2018"
 

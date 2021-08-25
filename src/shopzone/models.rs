@@ -1,6 +1,7 @@
 use crate::models::CData;
 use crate::models::Image;
 use either::Either;
+use rust_decimal::Decimal;
 
 #[derive(Clone, Debug)]
 pub struct Attribute {
@@ -38,8 +39,8 @@ pub struct SimpleProduct {
     pub attributes: Vec<Attribute>,
     pub sku: String,
     pub quantity: i64,
-    pub price: String,
-    pub price_old: String,
+    pub price: Decimal,
+    pub price_old: Decimal,
 }
 
 #[derive(Clone, Debug)]

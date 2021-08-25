@@ -1566,7 +1566,7 @@ dependencies = [
 
 [[package]]
 name = "xml-exporter"
-version = "0.3.4"
+version = "0.4.0"
 dependencies = [
  "clap",
  "either",

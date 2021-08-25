@@ -4,8 +4,6 @@ use crate::pigu::models::remainders::Root;
 use crate::Database;
 use postgres::Client;
 use postgres::NoTls;
-use rust_decimal::Decimal;
-use std::str::FromStr;
 
 pub fn load(db: &Database) -> Root {
     Root {
@@ -56,7 +54,7 @@ cross join lateral ( select plc.category_id as id,
             products.push(Product {
                 sku: row.try_get(1).unwrap(),
                 ean: row.try_get(2).unwrap(),
-                price: Decimal::from_str(row.try_get(3).unwrap()).unwrap(),
+                price: row.try_get(3).unwrap(),
                 stock: row.try_get(4).unwrap(),
                 collection_hours: 72,
             })

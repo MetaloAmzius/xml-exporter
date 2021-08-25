@@ -13,10 +13,11 @@ use crate::database::Loadable;
 use crate::models::CData;
 use either::Left;
 use either::Right;
-use log::warn;
 use log::error;
+use log::warn;
 use postgres::Client;
 use postgres::NoTls;
+use rust_decimal::Decimal;
 
 fn load_simple_products(db: &Database) -> Vec<Product> {
     let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
@@ -66,7 +67,7 @@ where c.id is null and p.active = 't'
                     Some(result) => result,
                     None => {
                         warn!("Product with no price");
-                        "".to_string()
+                        Decimal::ZERO
                     }
                 },
                 price_old: match row.get(7) {
@@ -227,7 +228,8 @@ where parent_id = $1;
             Some(val) => val,
             None => {
                 error!("Failed to read product id, value was null");
-                continue;},
+                continue;
+            }
         };
         result.push(SimpleProduct {
             attributes: get_product_attributes(db, id),
@@ -271,9 +273,12 @@ where attribute_owner_id = $1;",
                 data: match row.get(1) {
                     Some(val) => val,
                     None => {
-                        error!("Failed to read attributes value (Null value) for product: {}", id);
+                        error!(
+                            "Failed to read attributes value (Null value) for product: {}",
+                            id
+                        );
                         continue;
-                    },
+                    }
                 },
             },
         })
@@ -296,12 +301,18 @@ impl Loadable for Category {
                 },
                 parent_id: match row.get(1) {
                     Some(val) => val,
-                    None => panic!("Failed to read Category parent_id, value was null"),
+                    None => {
+                        error!("Failed to read Category category_id, value was null... Skipping");
+                        continue;
+                    }
                 },
                 name: CData {
                     data: match row.get(2) {
                         Some(val) => val,
-                        None => panic!("Failed to read Category name, value was null"),
+                        None => {
+                            error!("Failed to read Category name, value was null... Skipping");
+                            continue;
+                        }
                     },
                 },
             })

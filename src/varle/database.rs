@@ -8,7 +8,6 @@ use log::error;
 use log::warn;
 use postgres::Client;
 use postgres::NoTls;
-use rust_decimal::prelude::*;
 use rust_decimal::Decimal;
 use std::ops::Div;
 use std::ops::Mul;
@@ -112,7 +111,7 @@ where not exists (select null
                     Some(result) => result,
                     None => {
                         warn!("Product ({}) with no old_price", id);
-                        "".to_string()
+                        Decimal::ZERO
                     }
                 },
                 prime_costs: match row.get(7) {
@@ -152,9 +151,12 @@ where attribute_owner_id = $1;",
             value: insert_escaped_characters(match row.get(1) {
                 Some(val) => val,
                 None => {
-                    error!("Failed to read attributes value (null value) for product id: {}", id);
+                    error!(
+                        "Failed to read attributes value (null value) for product id: {}",
+                        id
+                    );
                     continue;
-                },
+                }
             }),
         })
     }
@@ -186,12 +188,18 @@ impl Loadable for Category {
                 },
                 parent_id: match row.get(1) {
                     Some(val) => val,
-                    None => panic!("Failed to read Category parent_id, value was null"),
+                    None => {
+                        error!("Failed to read Category parent_id, value was null... Skipping");
+                        continue;
+                    }
                 },
                 name: CData {
                     data: match row.get(2) {
                         Some(val) => val,
-                        None => panic!("Failed to read Category name, value was null"),
+                        None => {
+                            error!("Failed to read Category name, value was null... Skipping");
+                            continue;
+                        }
                     },
                 },
             };
@@ -209,7 +217,7 @@ impl Loadable for Category {
     }
 }
 
-fn get_product_sale_price(db: &Database, id: i32) -> String {
+fn get_product_sale_price(db: &Database, id: i32) -> Decimal {
     let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
     let mut price: Decimal = Decimal::new(0, 0);
     for row in client
@@ -227,21 +235,16 @@ left join product_promotions pp on p.promotion_id = pp.id
         )
         .unwrap()
     {
-        price = Decimal::from_str(match row.get(0) {
-            Some(val) => val,
-            None => panic!("Failed to read price for product, value was null"),
-        })
-        .unwrap();
+        price = row.try_get(0).unwrap();
 
         if let Ok(absolute_off) = row.try_get::<'_, usize, Decimal>(2) {
-            return (price - absolute_off).to_string();
+            return price - absolute_off;
         }
 
         if let Ok(percentage_off) = row.try_get::<'_, usize, Decimal>(1) {
             return price
                 .mul(Decimal::new(10000, 2) - percentage_off)
-                .div(Decimal::new(10000, 2))
-                .to_string();
+                .div(Decimal::new(10000, 2));
         }
     }
 
@@ -268,10 +271,9 @@ inner join categories c on pcr.category_id = c.id
         if let Ok(discount) = row.try_get::<'_, usize, Decimal>(2) {
             return price
                 .mul(Decimal::new(10000, 2) - discount)
-                .div(Decimal::new(10000, 2))
-                .to_string();
+                .div(Decimal::new(10000, 2));
         }
     }
 
-    price.to_string()
+    price
 }

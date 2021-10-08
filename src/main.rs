@@ -17,7 +17,7 @@ mod varle;
 mod write;
 
 #[derive(Clap)]
-#[clap(version = "0.4.0", author = "Ignas Lapėnas <ignas@lapenas.dev>")]
+#[clap(version = "0.4.2", author = "Ignas Lapėnas <ignas@lapenas.dev>")]
 struct Opts {
     /// Sets the postgresql connection string to the database
     /// Ex. "host=localhost user=root password=rootpw dbname=metaloamzius_web"

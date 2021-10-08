@@ -98,8 +98,7 @@ cross join lateral ( select plc.category_id as id,
                             where parent_id = p.id) --exclude parent products
        and not exists (select null
                         from product_categories_relations
-                       where category_id = 1237 and product_id = p.id) --exlude Westmark
-       and p.price >= 15; --exclude all that costs little (company loses money)
+                       where category_id = 1237 and product_id = p.id); --exlude Westmark
 ", &[]).unwrap()
         {
             let id: i32 = row.try_get(0).unwrap();

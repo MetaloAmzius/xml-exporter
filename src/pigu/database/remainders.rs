@@ -43,10 +43,13 @@ cross join lateral ( select plc.category_id as id,
                         where parent_id = p.id)
        and not exists (select null
                          from product_categories_relations
-                        where category_id = 1628 and product_id = p.id) --Exlude ASBIS
+                        where category_id = 1628 and product_id = p.id) --Exclude ASBIS
        and not exists (select null
                          from product_categories_relations
-                        where category_id = 1237 and product_id = p.id) --Exlude Westmark
+                        where category_id = 1639 and product_id = p.id) --Exclude Style De Vie
+       and not exists (select null
+                         from product_categories_relations
+                        where category_id = 1237 and product_id = p.id) --Exclude Westmark
   group by p.id, p.sku, p.barcode, p.price
     having sum(coalesce(pr.count, 0)) > 0;
 ",

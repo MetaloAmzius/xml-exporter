@@ -2,7 +2,7 @@ extern crate env_logger;
 
 use crate::database::Database;
 use crate::write::Write;
-use clap::Clap;
+use clap::Parser;
 use log::debug;
 use log::info;
 use rivile_client;
@@ -16,26 +16,30 @@ mod shopzone;
 mod varle;
 mod write;
 
-#[derive(Clap)]
+#[derive(Parser)]
 #[clap(version = "0.4.2", author = "Ignas Lapėnas <ignas@lapenas.dev>")]
 struct Opts {
     /// Sets the postgresql connection string to the database
     /// Ex. "host=localhost user=root password=rootpw dbname=metaloamzius_web"
-    #[clap(short, long, default_value="host=localhost user=metaloamzius password=metaloamziuspasw dbname=metaloamzius_web")]
+    #[clap(
+        short,
+        long,
+        default_value = "host=localhost user=metaloamzius password=metaloamziuspasw dbname=metaloamzius_web"
+    )]
     connection_string: String,
 
     ///Sets the rivile API key to use during (Pigu.lt) xml generation
-    #[clap(short, long, default_value="")]
+    #[clap(short, long, default_value = "")]
     api_key: String,
 
     /// Sets the export output file (Optional)
     /// Default value: output.xml
     /// Ex. "output.xml"
-    #[clap(short, long, default_value="output.xml")]
+    #[clap(short, long, default_value = "output.xml")]
     output_file: String,
 
     /// Sets the exported output file style
-    #[clap(short, long, default_value="2")]
+    #[clap(short, long, default_value = "2")]
     /// Ex. 1 - Shopzone.lt, 2 - Varle.lt, 3 - Pigu.lt (Products), 4 - Pigu.lt (Remainders)
     style: i32,
 }

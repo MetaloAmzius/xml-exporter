@@ -9,8 +9,6 @@ use log::warn;
 use postgres::Client;
 use postgres::NoTls;
 use rust_decimal::Decimal;
-use std::ops::Div;
-use std::ops::Mul;
 
 pub fn load(db: &Database) -> Root {
     Root {
@@ -112,7 +110,10 @@ where not exists (select null
                     None => panic!("Failed to read product sku, value was null"),
                 },
                 quantity: get_product_quantity(db, id),
-                price: get_product_sale_price(db, id),
+                price: row.get::<usize, Option<Decimal>>(2).unwrap_or_else(|| {
+                    warn!("Product ({}) with no price", id);
+                    Decimal::ZERO
+                }),
                 price_old: match row.get(3) {
                     Some(result) => result,
                     None => {
@@ -221,65 +222,4 @@ impl Loadable for Category {
 
         categories
     }
-}
-
-fn get_product_sale_price(db: &Database, id: i32) -> Decimal {
-    let mut client = Client::connect(&db.connection_string, NoTls).unwrap();
-    let mut price: Decimal = Decimal::new(0, 0);
-    for row in client
-        .query(
-            "
-   select p.price,
-          least(coalesce(pp.percentage_off, 0), 20) as percentage_off,
-          pp.absolute_off
-     from products p
-left join product_promotions pp on p.promotion_id = pp.id
-                               and pp.expiry > now()
-    where p.id = $1;
-",
-            &[&id],
-        )
-        .unwrap()
-    {
-        price = row.try_get(0).unwrap();
-
-        if let Ok(absolute_off) = row.try_get::<'_, usize, Decimal>(2) {
-            return price - absolute_off;
-        }
-
-        if let Ok(percentage_off) = row.try_get::<'_, usize, Decimal>(1) {
-            return price
-                .mul(Decimal::new(10000, 2) - percentage_off)
-                .div(Decimal::new(10000, 2));
-        }
-    }
-
-    for row in client
-        .query(
-            "
-    select pc.id,
-           pc.name,
-           least(pc.sale_price_off_percent, 20) as sale_price_off_percent
-      from products p
-inner join product_categories_relations pcr on p.id = pcr.product_id
-inner join categories c on pcr.category_id = c.id
- left join categories pc on pc.id = c.category_id
-                            or pc.id = c.id
-     where p.id = $1
-           and pc.on_sale = true
-           and now() between pc.promotion_start and pc.promotion_end
-  order by pc.sale_price_off_percent desc;
-",
-            &[&id],
-        )
-        .unwrap()
-    {
-        if let Ok(discount) = row.try_get::<'_, usize, Decimal>(2) {
-            return price
-                .mul(Decimal::new(10000, 2) - discount)
-                .div(Decimal::new(10000, 2));
-        }
-    }
-
-    price
 }

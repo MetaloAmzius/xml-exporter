@@ -7,14 +7,14 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = "3.0.0-beta.2"
-either = "1.6.1"
-env_logger = "0.9"
-log = "0.4"
-md5 = "0.7"
-postgres = "0.19.0"
-regex = "1.4.2"
-reqwest = { version = "0.11" }
+clap = { features = ["derive"], version = "4.0.4" }
+either = "1.8.0"
+env_logger = "0.9.1"
+log = "0.4.17"
+md5 = "0.7.0"
+postgres = "0.19.4"
+regex = "1.6.0"
+reqwest = "0.11.12"
 rivile-client = { version = "0.1", git = "ssh://git@gitlab.com/metalo-amzius/rivile-client.git" }
-rust_decimal = { version = "1.16", features = ["db-postgres"] }
-tokio = { version = "1.12", features = ["rt-multi-thread"] }
+rust_decimal = { version = "1.26.1", features = ["db-postgres"] }
+tokio = { version = "1.21.2", features = ["rt-multi-thread"] }

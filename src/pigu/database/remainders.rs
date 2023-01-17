@@ -61,7 +61,7 @@ cross join lateral ( select plc.category_id as id,
                 ean: row.try_get(2).unwrap(),
                 price: row.try_get(3).unwrap(),
                 stock: row.try_get(4).unwrap(),
-                collection_hours: 72,
+                collection_hours: 48,
             })
         }
         products

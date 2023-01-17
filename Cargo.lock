@@ -1093,7 +1093,7 @@ dependencies = [
 [[package]]
 name = "rivile-client"
 version = "0.1.1"
-source = "git+ssh://git@gitlab.com/metalo-amzius/rivile-client.git#ee6e6737ec24c7019f3e4e17da5b59fb02175c09"
+source = "git+https://git.sr.ht/~hitwright/rivile-client#e210bbf1ba19c2cb48dd99b19a878bb839224c6a"
 dependencies = [
  "log",
  "reqwest",

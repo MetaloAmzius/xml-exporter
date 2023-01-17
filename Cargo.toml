@@ -15,6 +15,6 @@ md5 = "0.7.0"
 postgres = "0.19.4"
 regex = "1.7.1"
 reqwest = "0.11.13"
-rivile-client = { version = "0.1", git = "ssh://git@gitlab.com/metalo-amzius/rivile-client.git" }
+rivile-client = { version = "0.1", git = "https://git.sr.ht/~hitwright/rivile-client" }
 rust_decimal = { version = "1.27.0", features = ["db-postgres"] }
 tokio = { version = "1.24.1", features = ["rt-multi-thread"] }

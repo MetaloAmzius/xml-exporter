@@ -1,0 +1,15 @@
+*.sql
+*.xml
+build.sh
+deploy.sh
+references/
+target/
+temp/
+
+COMMIT_EDITMSG
+.dockerignore
+.gitignore
+Dockerfile
+FETCH_HEAD
+HEAD
+ORIG_HEAD
